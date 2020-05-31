@@ -1,2 +1,2 @@
 rootProject.name='OpcUA-Client'
-include ':app', ':opc-ua-stack-1.4.1.1-SNAPSHOT', ':opc-ua-stack-1.4.1.1-SNAPSHOT-sources'
+include ':app'

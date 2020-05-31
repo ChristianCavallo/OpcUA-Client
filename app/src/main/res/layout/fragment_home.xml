@@ -20,4 +20,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <EditText
+        android:id="@+id/TextChry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="119dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
