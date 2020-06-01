@@ -27,4 +27,9 @@
         android:name="com.ccdev.opcua_client.ui.connection.ConnectionFragment"
         android:label="fragment_connection"
         tools:layout="@layout/fragment_connection" />
+    <fragment
+        android:id="@+id/browserFragment"
+        android:name="com.ccdev.opcua_client.ui.browser.BrowserFragment"
+        android:label="fragment_browser"
+        tools:layout="@layout/fragment_browser" />
 </navigation>
