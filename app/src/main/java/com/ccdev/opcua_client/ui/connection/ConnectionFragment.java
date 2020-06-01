@@ -11,6 +11,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import android.os.Handler;
 import android.util.Log;
@@ -21,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,9 +32,12 @@ import com.ccdev.opcua_client.Core;
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.EndpointAdapter;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.EndpointDescription;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,12 +57,11 @@ public class ConnectionFragment extends Fragment {
 
     EditText serverAddress;
     Button discoveryButton;
-
     ListView endpointsList;
-
 
     ProgressDialog dialog;
     String url;
+    EndpointDescription selectedEndpoint;
     ArrayList<EndpointDescription> endpoints;
 
     @Override
@@ -76,7 +82,7 @@ public class ConnectionFragment extends Fragment {
         });
 
         this.endpointsList = root.findViewById(R.id.endpoints_list);
-
+        this.endpointsList.setClickable(true);
         this.endpointsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -89,9 +95,14 @@ public class ConnectionFragment extends Fragment {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Connect(endpoints.get(position));
+                        selectedEndpoint = endpoints.get(position);
+                        CreateSession();
                     }
                 });
+
+                builder.setNegativeButton("No", null);
+
+                builder.show();
             }
         });
 
@@ -169,9 +180,104 @@ public class ConnectionFragment extends Fragment {
         this.endpointsList.setAdapter(adapter);
     }
 
+    private void CreateSession(){
+        dialog = ProgressDialog.show(getContext(), "",
+                "Creating the session...", true);
 
-    private void Connect(EndpointDescription ed){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Core.getInstance().createSession(url, selectedEndpoint);
+                } catch (ServiceResultException ex) {
+                    final ServiceResultException e = ex;
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
+                }
 
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        ShowAuthenticationDialog();
+                    }
+                });
+
+            }
+        }).start();
+    }
+
+    private void ShowAuthenticationDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.credentials_dialog, null);
+
+        RadioButton authCertificateRadio = (RadioButton) dialogView.findViewById(R.id.authCertificateRadioButton);
+        final RadioButton authUserPasswordRadio = (RadioButton) dialogView.findViewById(R.id.authUserPassRadioButton);
+        final TextView authUsernameText = (TextView) dialogView.findViewById(R.id.authUsernameTextView);
+        final TextView authPasswordText = (TextView) dialogView.findViewById(R.id.authPasswordTextView);
+
+        builder.setView(dialogView)
+                // Add action buttons
+                .setPositiveButton("Activate Session", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        if(authUserPasswordRadio.isChecked() && !authUsernameText.getText().toString().isEmpty()){
+                            ActivateSession(authUsernameText.getText().toString().trim(), authPasswordText.getText().toString().trim());
+                        } else {
+                            ActivateSession("", "");
+                        }
+                    }
+                })
+                .setNegativeButton("Abort", null);
+        builder.show();
+    }
+
+    private void ActivateSession(final String username, final String password){
+        dialog = ProgressDialog.show(getContext(), "",
+                "Activating the session...", true);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Core.getInstance().activateSession(username, password);
+                } catch (ServiceResultException ex) {
+                    final ServiceResultException e = ex;
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
+                }
+
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        GoToHome();
+                    }
+                });
+
+            }
+        }).start();
+    }
+
+    private void GoToHome(){
+        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+        navController.popBackStack();
+        navController.navigate(R.id.navigation_home);
+        BottomNavigationView m = (BottomNavigationView) getActivity().findViewById(R.id.nav_view);
+        m.getMenu().findItem(R.id.navigation_connection).setEnabled(false);
     }
 
 }

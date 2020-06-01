@@ -11,6 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
+        <service
+            android:enabled="true"
+            android:name=".ExitService"
+            android:exported="false"
+            android:stopWithTask="false" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >

@@ -8,6 +8,11 @@ import android.util.Log;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.opcfoundation.ua.application.Application;
 import org.opcfoundation.ua.application.Client;
+import org.opcfoundation.ua.application.Session;
+import org.opcfoundation.ua.application.SessionChannel;
+import org.opcfoundation.ua.common.ServiceResultException;
+import org.opcfoundation.ua.core.EndpointDescription;
+import org.opcfoundation.ua.core.UserIdentityToken;
 import org.opcfoundation.ua.transport.security.Cert;
 import org.opcfoundation.ua.transport.security.CertificateValidator;
 import org.opcfoundation.ua.transport.security.KeyPair;
@@ -39,6 +44,9 @@ public class Core {
     Context context;
     Application opcApplication;
     Client client;
+    SessionChannel sessionChannel;
+    String serverUrl;
+    EndpointDescription endpointDescription;
 
     public void InitializeClient(Context t){
         if(t != null){
@@ -62,7 +70,6 @@ public class Core {
 
         String PrivateKey = sharedPref.getString("private_key", "");
         KeyPair keys = null;
-
         if(certFile.exists() && privKeyFile.exists() && !PrivateKey.isEmpty()){
 
             try {
@@ -70,7 +77,7 @@ public class Core {
                 myCertificate = Cert.load(certFile);
                 PrivKey myPrivateKey = PrivKey.load(privKeyFile, PrivateKey);
                 keys = new KeyPair(myCertificate, myPrivateKey);
-                Log.i("CLIENT INITIALIZATION", "Certificate loaded!");
+                Log.i("CLIENT", "Certificate loaded!");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -81,9 +88,10 @@ public class Core {
                                 "com.ccdev.opcua_client", 3650);
                 keys.getCertificate().save(certFile);
                 keys.getPrivateKey().save(privKeyFile, PrivateKey);
-                sharedPref.edit().putString("private_key", PrivateKey);
-                sharedPref.edit().commit();
-                Log.i("CLIENT INITIALIZATION", "Certificate created!");
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("private_key", PrivateKey);
+                editor.commit();
+                Log.i("CLIENT", "Certificate created!");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -97,6 +105,19 @@ public class Core {
         opcApplication.getHttpsSettings().setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         opcApplication.setApplicationUri("com.ccdev.opcua_client");
         client = new Client(opcApplication);
+    }
+
+    public void ShutDown(){
+        try {
+             if(sessionChannel != null){
+                 sessionChannel.close();
+            }
+
+             client.getApplication().close();
+            Log.i("CLIENT", "Everything closed!");
+        } catch (ServiceResultException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String generateString(int n)
@@ -115,7 +136,41 @@ public class Core {
         return sb.toString();
     }
 
+    public void createSession(String url, EndpointDescription e) throws ServiceResultException {
+        if(sessionChannel != null){
+            sessionChannel.close();
+        }
+        sessionChannel = client.createSessionChannel(url, e);
+
+        this.endpointDescription = e;
+        this.serverUrl = url;
+    }
+
+    public void activateSession(String username, String password) throws ServiceResultException {
+        if(!username.isEmpty() && !password.isEmpty()){
+            Log.i("CLIENT", "Session activate with username: " + username + " | password: " + password);
+            sessionChannel.activate(username, password);
+        } else {
+            sessionChannel.activate();
+        }
+
+    }
+
+
     public Client getClient() {
         return client;
     }
+
+    public SessionChannel getSessionChannel() {
+        return sessionChannel;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public EndpointDescription getEndpointDescription() {
+        return endpointDescription;
+    }
+
 }
