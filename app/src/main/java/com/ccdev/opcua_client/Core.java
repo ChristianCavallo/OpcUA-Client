@@ -1,12 +1,12 @@
 package com.ccdev.opcua_client;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Looper;
 import android.util.Log;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.opcfoundation.ua.application.Application;
 import org.opcfoundation.ua.application.Client;
 import org.opcfoundation.ua.application.Session;
 import org.opcfoundation.ua.application.SessionChannel;
@@ -42,7 +42,7 @@ public class Core {
     }
 
     Context context;
-    Application opcApplication;
+    org.opcfoundation.ua.application.Application opcApplication;
     Client client;
     SessionChannel sessionChannel;
     String serverUrl;
@@ -98,7 +98,7 @@ public class Core {
         }
 
 
-        opcApplication = new Application();
+        opcApplication = new org.opcfoundation.ua.application.Application();
         opcApplication.addApplicationInstanceCertificate(keys);
         opcApplication.getOpctcpSettings().setCertificateValidator(CertificateValidator.ALLOW_ALL);
         opcApplication.getHttpsSettings().setCertificateValidator(CertificateValidator.ALLOW_ALL);
