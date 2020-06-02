@@ -1,5 +1,6 @@
 package com.ccdev.opcua_client.ui.browser;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -172,4 +174,48 @@ public class BrowserFragment extends Fragment {
         navPathtView.setText(sb.toString());
 
     }
+
+
+
+
+
+
+
+    //Read =========================================================================================
+
+    private void ShowReadDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_read, null);
+
+        TextView readNameNodeView = (TextView) dialogView.findViewById(R.id.readNameNodeTextView);
+        TextView readNamespaceView = (TextView) dialogView.findViewById(R.id.readNamespaceTextView);
+        TextView readNodeIndexView = (TextView) dialogView.findViewById(R.id.readNodeIndexTextView);
+        TextView readNodeValueView = (TextView) dialogView.findViewById(R.id.readNodeValuetextView);
+        TextView readNodeTypeDataView = (TextView) dialogView.findViewById(R.id.readNodeTypeDatatextView);
+        Button readButton = (Button) dialogView.findViewById(R.id.readButton);
+        Button readCloseButton = (Button) dialogView.findViewById(R.id.readClosebutton);
+
+
+        
+
+        readButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        readCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+
+
+
+
 }
