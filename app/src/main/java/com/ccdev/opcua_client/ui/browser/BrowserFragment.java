@@ -1,24 +1,34 @@
 package com.ccdev.opcua_client.ui.browser;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ccdev.opcua_client.Core;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.NodeAdapter;
+import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 
 import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
 import org.opcfoundation.ua.builtintypes.NodeId;
@@ -33,6 +43,7 @@ import org.opcfoundation.ua.core.NodeClass;
 import org.opcfoundation.ua.core.ReferenceDescription;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class BrowserFragment extends Fragment {
 
@@ -44,6 +55,10 @@ public class BrowserFragment extends Fragment {
 
     ImageView backButton;
     TextView navPathtView;
+
+    int selectedNodeIndex = -1;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +91,43 @@ public class BrowserFragment extends Fragment {
                 Browse(references[position]);
             }
         });
+
+        registerForContextMenu(nodesList);
+
+
         ReferenceDescription r = new ReferenceDescription();
         ExpandedNodeId eni = new ExpandedNodeId(Identifiers.RootFolder);
         r.setNodeId(eni);
         Browse(r);
         return root;
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        int index = info.position;
+        if(references[index].getNodeClass().getValue() != 2){
+            return;
+        }
+        menu.add(0, 1, 0, "Read");
+        menu.add(0, 2, 1, "Write");
+        menu.add(0, 3, 2, "Subscribe");
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        super.onContextItemSelected(item);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        this.selectedNodeIndex = info.position;
+        if(item.getTitle().equals("Read")) {
+
+        } else if(item.getTitle().equals("Write")) {
+
+        } else if(item.getTitle().equals("Subscribe")) {
+
+        }
+        return true;
     }
 
     private void Browse(final ReferenceDescription r) {
@@ -172,4 +219,82 @@ public class BrowserFragment extends Fragment {
         navPathtView.setText(sb.toString());
 
     }
+
+
+    //SUBSCRIPTION =================================================================================
+    ExtendedSubscription selectedSubscription;
+
+    private void ShowSubscriptionChooseDialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_subscription_choose, null);
+
+        ListView subscriptionsList = (ListView) dialogView.findViewById(R.id.subscChooseListView);
+        TextView titleView = (TextView) dialogView.findViewById(R.id.subscChooseTitleTextView);
+
+        builder.setView(dialogView)
+                // Add action buttons
+                .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        ShowCreateSubscriptionDialog();
+                    }
+                })
+                .setNegativeButton("Abort", null);
+
+        final AlertDialog ad = builder.show();
+
+        if(Core.getInstance().getSubscriptions().size() == 0){
+            titleView.setText("No subscriptions. Create a new one.");
+            subscriptionsList.setVisibility(View.GONE);
+        } else {
+
+            subscriptionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    selectedSubscription = Core.getInstance().getSubscriptions().get(position);
+                    ad.cancel();
+                    ShowCreateMonitoredItemDialog();
+                }
+            });
+        }
+    }
+
+    public void ShowCreateSubscriptionDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_subscription, null);
+
+        EditText displayNameText = (EditText) dialogView.findViewById(R.id.subscDisplayNameText);
+        EditText publishIntervalText = (EditText) dialogView.findViewById(R.id.subscPublishIntervalText);
+        EditText keepAliveCountText = (EditText) dialogView.findViewById(R.id.subscKeepAliveCountText);
+        EditText lifetimeCountText = (EditText) dialogView.findViewById(R.id.subscLifetimeCountText);
+        EditText maxNotificationsPerPublishText = (EditText) dialogView.findViewById(R.id.subscMaxNotPerPublishText);
+        EditText priorityText = (EditText) dialogView.findViewById(R.id.subscPriorityText);
+        Switch publishEnabledSwitch = (Switch) dialogView.findViewById(R.id.subscPublishEnabledSwitch);
+
+        builder.setView(dialogView)
+                // Add action buttons
+                .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        ShowCreateSubscriptionDialog();
+                    }
+                })
+                .setNegativeButton("Abort", null);
+
+        final AlertDialog ad = builder.show();
+    }
+
+    public void ShowCreateMonitoredItemDialog(){
+
+    }
+
+
+
+    //==============================================================================================
+
+
 }

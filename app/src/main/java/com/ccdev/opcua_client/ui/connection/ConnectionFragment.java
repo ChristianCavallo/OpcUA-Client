@@ -1,6 +1,5 @@
 package com.ccdev.opcua_client.ui.connection;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.app.AlertDialog;
@@ -12,11 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,18 +29,15 @@ import com.ccdev.opcua_client.Core;
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.EndpointAdapter;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.EndpointDescription;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.opcfoundation.ua.utils.EndpointUtil.selectByProtocol;
-import static org.opcfoundation.ua.utils.EndpointUtil.sortBySecurityLevel;
 
 public class ConnectionFragment extends Fragment {
 
@@ -216,7 +210,7 @@ public class ConnectionFragment extends Fragment {
     private void ShowAuthenticationDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.credentials_dialog, null);
+        View dialogView = inflater.inflate(R.layout.dialog_credentials, null);
 
         RadioButton authCertificateRadio = (RadioButton) dialogView.findViewById(R.id.authCertificateRadioButton);
         final RadioButton authUserPasswordRadio = (RadioButton) dialogView.findViewById(R.id.authUserPassRadioButton);

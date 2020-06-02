@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import com.ccdev.opcua_client.R;
 
 import org.opcfoundation.ua.core.EndpointDescription;
-import org.opcfoundation.ua.transport.Endpoint;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class EndpointAdapter extends ArrayAdapter<EndpointDescription> {
         EndpointDescription endpointDescription = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.endpoint_listitem, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.listitem_endpoint, parent, false);
         }
         // Lookup view for data population
         TextView uriView = (TextView) convertView.findViewById(R.id.uriTextView);
