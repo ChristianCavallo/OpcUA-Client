@@ -40,9 +40,9 @@ public class NodeAdapter extends ArrayAdapter<ReferenceDescription> {
 
         // Populate the data into the template view using the data object
         nameNodeView.setText(ref.getDisplayName().getText());
-        namespaceView.setText(ref.getNodeId().getNamespaceIndex());
-        nodeIndexView.setText(ref.getNodeId().getValue().toString());
-        classNodeView.setText(ref.getNodeClass().name());
+        namespaceView.setText("Namespace: " + ref.getNodeId().getNamespaceIndex() + "");
+        nodeIndexView.setText("NamespaceIndex: " + ref.getNodeId().getValue().toString());
+        classNodeView.setText("Class: " + ref.getNodeClass().name());
 
         switch (ref.getNodeClass().getValue()){
             case 0:
@@ -51,6 +51,7 @@ public class NodeAdapter extends ArrayAdapter<ReferenceDescription> {
                 iconNodeView.setImageResource(R.drawable.ic_folder_24dp);
                 break;
             case 2:
+                iconNodeView.setImageResource(R.drawable.ic_description_24dp);
                 break;
             case 4:
                 break;
