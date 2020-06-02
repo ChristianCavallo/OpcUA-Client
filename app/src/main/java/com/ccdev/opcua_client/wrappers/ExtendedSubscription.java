@@ -7,10 +7,17 @@ import java.util.ArrayList;
 
 public class ExtendedSubscription {
 
+    String name;
+
     CreateSubscriptionRequest request;
     CreateSubscriptionResponse response;
 
     ArrayList<ExtendedMonitoredItem> monitoredItems;
+
+    public ExtendedSubscription(String name, CreateSubscriptionRequest request) {
+        this.name = name;
+        this.request = request;
+    }
 
     public ExtendedSubscription(CreateSubscriptionRequest request, CreateSubscriptionResponse response) {
         this.request = request;
@@ -25,7 +32,15 @@ public class ExtendedSubscription {
         return response;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public ArrayList<ExtendedMonitoredItem> getMonitoredItems() {
         return monitoredItems;
+    }
+
+    public void setResponse(CreateSubscriptionResponse response) {
+        this.response = response;
     }
 }

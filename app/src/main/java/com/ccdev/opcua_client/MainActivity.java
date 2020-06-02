@@ -16,13 +16,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Core.getInstance().ShutDown();
             }
         }).start();
-        super.onDestroy();
     }
 
     @Override

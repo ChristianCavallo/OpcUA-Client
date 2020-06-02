@@ -118,6 +118,7 @@ public class Core {
             }
 
              client.getApplication().close();
+             _instance = null;
             Log.i("CLIENT", "Everything closed!");
         } catch (ServiceResultException e) {
             e.printStackTrace();
@@ -214,11 +215,10 @@ public class Core {
 
     ArrayList<ExtendedSubscription> subscriptions = new ArrayList<>();
 
-    public void createSubscription(CreateSubscriptionRequest request) throws ServiceResultException {
-        CreateSubscriptionResponse res = sessionChannel.CreateSubscription(request);
-
-        subscriptions.add(new ExtendedSubscription(request, res));
-        notifySubscriptionCreated();
+    public void createSubscription(ExtendedSubscription ex) throws ServiceResultException {
+        CreateSubscriptionResponse res = sessionChannel.CreateSubscription(ex.getRequest());
+        ex.setResponse(res);
+        subscriptions.add(ex);
     }
 
     public ArrayList<ExtendedSubscription> getSubscriptions() {

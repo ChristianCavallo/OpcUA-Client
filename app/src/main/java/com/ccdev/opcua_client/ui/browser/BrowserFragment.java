@@ -1,6 +1,7 @@
 package com.ccdev.opcua_client.ui.browser;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -32,16 +34,22 @@ import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 
 import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
 import org.opcfoundation.ua.builtintypes.NodeId;
+import org.opcfoundation.ua.builtintypes.UnsignedByte;
+import org.opcfoundation.ua.builtintypes.UnsignedInteger;
 import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.BrowseDescription;
 import org.opcfoundation.ua.core.BrowseDirection;
 import org.opcfoundation.ua.core.BrowseRequest;
 import org.opcfoundation.ua.core.BrowseResponse;
 import org.opcfoundation.ua.core.BrowseResultMask;
+import org.opcfoundation.ua.core.CreateSubscriptionRequest;
+import org.opcfoundation.ua.core.CreateSubscriptionResponse;
 import org.opcfoundation.ua.core.Identifiers;
 import org.opcfoundation.ua.core.NodeClass;
 import org.opcfoundation.ua.core.ReferenceDescription;
+import org.opcfoundation.ua.core.RequestHeader;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,7 +133,7 @@ public class BrowserFragment extends Fragment {
         } else if(item.getTitle().equals("Write")) {
 
         } else if(item.getTitle().equals("Subscribe")) {
-
+            ShowSubscriptionChooseDialog();
         }
         return true;
     }
@@ -223,6 +231,7 @@ public class BrowserFragment extends Fragment {
 
     //SUBSCRIPTION =================================================================================
     ExtendedSubscription selectedSubscription;
+    ProgressDialog dialog;
 
     private void ShowSubscriptionChooseDialog(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -250,6 +259,12 @@ public class BrowserFragment extends Fragment {
             subscriptionsList.setVisibility(View.GONE);
         } else {
 
+            ArrayList<String> subs = new ArrayList<>();
+            for(int i = 0; i < Core.getInstance().getSubscriptions().size(); i++){
+                subs.add(Core.getInstance().getSubscriptions().get(i).getName());
+            }
+            subscriptionsList.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, subs));
+
             subscriptionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -266,21 +281,55 @@ public class BrowserFragment extends Fragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_subscription, null);
 
-        EditText displayNameText = (EditText) dialogView.findViewById(R.id.subscDisplayNameText);
-        EditText publishIntervalText = (EditText) dialogView.findViewById(R.id.subscPublishIntervalText);
-        EditText keepAliveCountText = (EditText) dialogView.findViewById(R.id.subscKeepAliveCountText);
-        EditText lifetimeCountText = (EditText) dialogView.findViewById(R.id.subscLifetimeCountText);
-        EditText maxNotificationsPerPublishText = (EditText) dialogView.findViewById(R.id.subscMaxNotPerPublishText);
-        EditText priorityText = (EditText) dialogView.findViewById(R.id.subscPriorityText);
-        Switch publishEnabledSwitch = (Switch) dialogView.findViewById(R.id.subscPublishEnabledSwitch);
+        final EditText displayNameText = (EditText) dialogView.findViewById(R.id.subscDisplayNameText);
+        final EditText publishIntervalText = (EditText) dialogView.findViewById(R.id.subscPublishIntervalText);
+        final EditText keepAliveCountText = (EditText) dialogView.findViewById(R.id.subscKeepAliveCountText);
+        final EditText lifetimeCountText = (EditText) dialogView.findViewById(R.id.subscLifetimeCountText);
+        final EditText maxNotificationsPerPublishText = (EditText) dialogView.findViewById(R.id.subscMaxNotPerPublishText);
+        final EditText priorityText = (EditText) dialogView.findViewById(R.id.subscPriorityText);
+        final Switch publishEnabledSwitch = (Switch) dialogView.findViewById(R.id.subscPublishEnabledSwitch);
+
 
         builder.setView(dialogView)
                 // Add action buttons
-                .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                        ShowCreateSubscriptionDialog();
+                        CreateSubscriptionRequest req = new CreateSubscriptionRequest();
+
+                        if(publishIntervalText.getText().toString().isEmpty()){
+                            publishIntervalText.setText("1000");
+                        }
+                        if(keepAliveCountText.getText().toString().isEmpty()){
+                            keepAliveCountText.setText("10");
+                        }
+                        if(lifetimeCountText.getText().toString().isEmpty()){
+                            lifetimeCountText.setText("1000");
+                        }
+                        if(maxNotificationsPerPublishText.getText().toString().isEmpty()){
+                            maxNotificationsPerPublishText.setText("0");
+                        }
+                        if(priorityText.getText().toString().isEmpty()){
+                            priorityText.setText("255");
+                        }
+
+                        if(displayNameText.getText().toString().trim().isEmpty()){
+                            displayNameText.setText("MySubscription" + (Core.getInstance().getSubscriptions().size() + 1));
+                        }
+
+                        try{
+                            req.setRequestedPublishingInterval(Double.parseDouble(publishIntervalText.getText().toString()));
+                            req.setRequestedMaxKeepAliveCount(UnsignedInteger.parseUnsignedInteger(keepAliveCountText.getText().toString()));
+                            req.setRequestedLifetimeCount(UnsignedInteger.parseUnsignedInteger(lifetimeCountText.getText().toString()));
+                            req.setMaxNotificationsPerPublish(UnsignedInteger.parseUnsignedInteger(maxNotificationsPerPublishText.getText().toString()));
+                            req.setPriority(UnsignedByte.parseUnsignedByte(priorityText.getText().toString()));
+                            req.setPublishingEnabled(publishEnabledSwitch.isChecked());
+                        }catch(Exception e){
+                            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        ExtendedSubscription es = new ExtendedSubscription(displayNameText.getText().toString().trim(), req);
+                        CreateSubscription(es);
                     }
                 })
                 .setNegativeButton("Abort", null);
@@ -288,11 +337,52 @@ public class BrowserFragment extends Fragment {
         final AlertDialog ad = builder.show();
     }
 
+    public void CreateSubscription(final ExtendedSubscription es){
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CreateSubscription(es);
+                }
+            }).start();
+            return;
+        }
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(getContext(), "","Creating subscription...", true);
+               }
+        });
+
+        ServiceResultException exception = null;
+        try {
+            Core.getInstance().createSubscription(es);
+        } catch (ServiceResultException ex) {
+            ex.printStackTrace();
+            exception = ex;
+            return;
+        }
+
+        final ServiceResultException finalException = exception;
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+                if(finalException != null){
+                    Toast.makeText(getContext(), "Error: " + finalException.getStatusCode().getDescription() + ". Code: " + finalException.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "Subscription created.", Toast.LENGTH_LONG).show();
+                    selectedSubscription = es;
+                    ShowCreateMonitoredItemDialog();
+                }
+            }
+        });
+    }
+
     public void ShowCreateMonitoredItemDialog(){
 
     }
-
-
 
     //==============================================================================================
 

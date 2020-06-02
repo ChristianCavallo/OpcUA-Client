@@ -70,6 +70,10 @@ public class ConnectionFragment extends Fragment {
         this.discoveryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(Core.getInstance().getClient() == null){
+                    Toast.makeText(getContext(), "The client is still initializating, try in a few seconds.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 StartDiscovery();
                 MainActivity.hideSoftKeyboard(getActivity());
             }
