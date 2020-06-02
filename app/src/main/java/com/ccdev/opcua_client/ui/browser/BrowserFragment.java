@@ -197,7 +197,7 @@ public class BrowserFragment extends Fragment {
         Button readCloseButton = (Button) dialogView.findViewById(R.id.readClosebutton);
 
 
-        
+
 
         readButton.setOnClickListener(new View.OnClickListener() {
             @Override
