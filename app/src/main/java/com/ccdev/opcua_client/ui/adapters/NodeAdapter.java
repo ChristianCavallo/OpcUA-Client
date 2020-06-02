@@ -29,7 +29,7 @@ public class NodeAdapter extends ArrayAdapter<ReferenceDescription> {
         ReferenceDescription ref = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.node_listitem, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.listitem_node, parent, false);
         }
         // Lookup view for data population
         TextView nameNodeView = (TextView) convertView.findViewById(R.id.nameNodeTextView);

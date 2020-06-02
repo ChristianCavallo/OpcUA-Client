@@ -6,11 +6,15 @@ import android.content.SharedPreferences;
 import android.os.Looper;
 import android.util.Log;
 
+import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
+
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.opcfoundation.ua.application.Client;
 import org.opcfoundation.ua.application.Session;
 import org.opcfoundation.ua.application.SessionChannel;
 import org.opcfoundation.ua.common.ServiceResultException;
+import org.opcfoundation.ua.core.CreateSubscriptionRequest;
+import org.opcfoundation.ua.core.CreateSubscriptionResponse;
 import org.opcfoundation.ua.core.EndpointDescription;
 import org.opcfoundation.ua.core.UserIdentityToken;
 import org.opcfoundation.ua.transport.security.Cert;
@@ -20,6 +24,7 @@ import org.opcfoundation.ua.transport.security.PrivKey;
 import org.opcfoundation.ua.utils.CertificateUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -27,13 +32,11 @@ public class Core {
 
     private static Core _instance;
 
-    private Core()
-    {
+    private Core() {
 
     }
 
-    public static Core getInstance()
-    {
+    public static Core getInstance() {
         if (_instance == null)
         {
             _instance = new Core();
@@ -44,9 +47,10 @@ public class Core {
     Context context;
     org.opcfoundation.ua.application.Application opcApplication;
     Client client;
-    SessionChannel sessionChannel;
-    String serverUrl;
-    EndpointDescription endpointDescription;
+
+    public Client getClient() {
+        return client;
+    }
 
     public void InitializeClient(Context t){
         if(t != null){
@@ -136,6 +140,12 @@ public class Core {
         return sb.toString();
     }
 
+    //SESSION CREATION AND ACTIVATION ===============================================================
+
+    SessionChannel sessionChannel;
+    String serverUrl;
+    EndpointDescription endpointDescription;
+
     public void createSession(String url, EndpointDescription e) throws ServiceResultException {
         if(sessionChannel != null){
             sessionChannel.close();
@@ -148,17 +158,11 @@ public class Core {
 
     public void activateSession(String username, String password) throws ServiceResultException {
         if(!username.isEmpty() && !password.isEmpty()){
-            Log.i("CLIENT", "Session activate with username: " + username + " | password: " + password);
-            sessionChannel.activate(username, password);
+           sessionChannel.activate(username, password);
         } else {
             sessionChannel.activate();
         }
 
-    }
-
-
-    public Client getClient() {
-        return client;
     }
 
     public SessionChannel getSessionChannel() {
@@ -172,5 +176,59 @@ public class Core {
     public EndpointDescription getEndpointDescription() {
         return endpointDescription;
     }
+
+    //==============================================================================================
+
+
+
+    // OBSERVER PATTERN ============================================================================
+
+    ArrayList<CoreInterface> listeners = new ArrayList();
+
+    public void notifySubscriptionCreated() {
+        if (listeners.size() > 0) {
+            for (CoreInterface next : listeners) {
+                if (next != null) {
+                    next.onSubscriptionCreated();
+                } else {
+                    listeners.remove(next);
+                }
+            }
+        }
+    }
+
+    public void registerListener(CoreInterface mListener) {
+        if (!listeners.contains(mListener)) {
+            listeners.add(mListener);
+        }
+    }
+
+    public void UnregisterListener(CoreInterface listener) {
+        listeners.remove(listener);
+    }
+
+    //==============================================================================================
+
+
+    // SUBSCRIPTIONS ===============================================================================
+
+    ArrayList<ExtendedSubscription> subscriptions = new ArrayList<>();
+
+    public void createSubscription(CreateSubscriptionRequest request) throws ServiceResultException {
+        CreateSubscriptionResponse res = sessionChannel.CreateSubscription(request);
+
+        subscriptions.add(new ExtendedSubscription(request, res));
+        notifySubscriptionCreated();
+    }
+
+    public ArrayList<ExtendedSubscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    // =============================================================================================
+
+
+
+
 
 }
