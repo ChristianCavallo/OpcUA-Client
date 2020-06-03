@@ -1,11 +1,13 @@
 package com.ccdev.opcua_client.ui.browser;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -17,11 +19,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +38,7 @@ import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
 import org.opcfoundation.ua.builtintypes.NodeId;
 import org.opcfoundation.ua.common.ServiceResultException;
+import org.opcfoundation.ua.core.Attributes;
 import org.opcfoundation.ua.core.BrowseDescription;
 import org.opcfoundation.ua.core.BrowseDirection;
 import org.opcfoundation.ua.core.BrowseRequest;
@@ -41,9 +46,16 @@ import org.opcfoundation.ua.core.BrowseResponse;
 import org.opcfoundation.ua.core.BrowseResultMask;
 import org.opcfoundation.ua.core.Identifiers;
 import org.opcfoundation.ua.core.NodeClass;
+import org.opcfoundation.ua.core.ReadRequest;
+import org.opcfoundation.ua.core.ReadResponse;
+import org.opcfoundation.ua.core.ReadValueId;
 import org.opcfoundation.ua.core.ReferenceDescription;
+import org.opcfoundation.ua.core.TimestampsToReturn;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class BrowserFragment extends Fragment {
@@ -51,6 +63,7 @@ public class BrowserFragment extends Fragment {
     ListView nodesList;
     Handler mainHandler;
     ReferenceDescription[] references;
+    ProgressDialog dialog;
 
     ArrayList<ReferenceDescription> navReferences;
 
@@ -122,7 +135,7 @@ public class BrowserFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         this.selectedNodeIndex = info.position;
         if(item.getTitle().equals("Read")) {
-
+            ShowReadDialog();
         } else if(item.getTitle().equals("Write")) {
 
         } else if(item.getTitle().equals("Subscribe")) {
@@ -192,6 +205,24 @@ public class BrowserFragment extends Fragment {
         if(res.getResults().length>0){
 
             references = res.getResults()[0].getReferences();
+            ArrayList<ReferenceDescription> rl = new ArrayList<>();
+            for(int i = 0; i < references.length; i++){
+                found = false;
+                for(int j = 0; j < rl.size(); j++){
+                    if(references[i].getNodeId().getNamespaceIndex() == rl.get(j).getNodeId().getNamespaceIndex() &&
+                            references[i].getNodeId().getValue().toString().equals(rl.get(j).getNodeId().getValue().toString())){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    rl.add(references[i]);
+                }
+            }
+
+            references = new ReferenceDescription[rl.size()];
+            references = rl.toArray(references);
+
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -298,34 +329,83 @@ public class BrowserFragment extends Fragment {
     //==============================================================================================
 
 
-
-
-
-
-
-
-
     //Read =========================================================================================
-
+    TextView readNodeValueView;
+    TextView readNodeTimestampView;
+    Spinner readTimestamp;
+    TimestampsToReturn timestamps = TimestampsToReturn.Both;
     private void ShowReadDialog(){
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_read, null);
 
+        //Text info node
         TextView readNameNodeView = (TextView) dialogView.findViewById(R.id.readNameNodeTextView);
         TextView readNamespaceView = (TextView) dialogView.findViewById(R.id.readNamespaceTextView);
         TextView readNodeIndexView = (TextView) dialogView.findViewById(R.id.readNodeIndexTextView);
-        TextView readNodeValueView = (TextView) dialogView.findViewById(R.id.readNodeValuetextView);
-        TextView readNodeTypeDataView = (TextView) dialogView.findViewById(R.id.readNodeTypeDatatextView);
+
+        //Text result read
+        readNodeValueView = (TextView) dialogView.findViewById(R.id.readNodeValuetextView);
+        readNodeTimestampView = (TextView) dialogView.findViewById(R.id.readNodeTimestamptextView);
+
+        //Button
         Button readButton = (Button) dialogView.findViewById(R.id.readButton);
-        Button readCloseButton = (Button) dialogView.findViewById(R.id.readClosebutton);
+        Button readCloseButton = (Button) dialogView.findViewById(R.id.readCloseButton);
+
+        //Parameters
+        readTimestamp = (Spinner) dialogView.findViewById(R.id.readTimestampSpinner);
+        String[] items = new String[]{"Source", "Server", "Both", "Neither"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, items);
+        readTimestamp.setAdapter(adapter);
+        final EditText readMaxAgeView = (EditText) dialogView.findViewById(R.id.readMaxAgeTextView);
 
 
+        ReferenceDescription r = references[selectedNodeIndex];
+        readNameNodeView.setText(r.getDisplayName().getText());
+        readNamespaceView.setText("Namespace: " + r.getNodeId().getNamespaceIndex() + "");
+        readNodeIndexView.setText("NamespaceIndex: " + r.getNodeId().getValue().toString());
+        readNodeValueView.setText("Value: ");
+        readMaxAgeView.setText("0");
+        readTimestamp.setSelection(2);
 
+        builder.setView(dialogView);
+        final AlertDialog ad = builder.show();
 
         readButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+                switch (readTimestamp.getSelectedItemPosition()){
+                    case 0:
+                        timestamps = TimestampsToReturn.Source;
+                        break;
+                    case 1:
+                        timestamps = TimestampsToReturn.Server;
+                        break;
+                    case 2:
+                        timestamps = TimestampsToReturn.Both;
+                        break;
+                    case 3:
+                        timestamps = TimestampsToReturn.Neither;
+                        break;
+                }
+
+                ReadRequest req = new ReadRequest();
+                req.setMaxAge(Double.parseDouble(readMaxAgeView.getText().toString().trim()));
+                req.setTimestampsToReturn(timestamps);
+                ReadValueId rv = new ReadValueId();
+                rv.setAttributeId(Attributes.Value);
+                ExpandedNodeId en = references[selectedNodeIndex].getNodeId();
+                NodeId n = NodeId.get(en.getIdType(), en.getNamespaceIndex(), en.getValue());
+                rv.setNodeId(n);
+                req.setNodesToRead(new ReadValueId[]{rv});
+
+                dialog = ProgressDialog.show(getContext(), "",
+                        "Reading node value...", true);
+
+                ReadNode(req);
 
             }
         });
@@ -333,12 +413,140 @@ public class BrowserFragment extends Fragment {
         readCloseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                ad.cancel();
             }
         });
     }
 
+    private void ReadNode(final ReadRequest req){
 
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ReadNode(req);
+                }
+            }).start();
+            return;
+        }
+
+        ReadResponse res = null;
+        try {
+             res = Core.getInstance().getSessionChannel().Read(req);
+        } catch (ServiceResultException ex) {
+            ex.printStackTrace();
+            final ServiceResultException e = ex;
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
+                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            return;
+        }
+
+        final ReadResponse finalRes = res;
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+                try{
+                    Toast.makeText(getContext(), "Read done.", Toast.LENGTH_LONG).show();
+                    readNodeValueView.setText("Value: " + finalRes.getResults()[0].getValue().toString());
+
+                    switch (readTimestamp.getSelectedItemPosition()){
+                        case 0: //Source
+                            readNodeTimestampView.setText("Timestamp Source: " + finalRes.getResults()[0].getSourceTimestamp().toString());
+                            break;
+                        case 1: //Server
+                            readNodeTimestampView.setText("Timestamp Server: " + finalRes.getResults()[0].getServerTimestamp().toString());
+                            break;
+                        case 2: //Both
+                            readNodeTimestampView.setText("Timestamp Server: " + finalRes.getResults()[0].getServerTimestamp().toString() + "\n" +
+                                                            "Timestamp Source: " + finalRes.getResults()[0].getSourceTimestamp().toString() );
+                            break;
+                        case 3: //Neither
+                            timestamps = TimestampsToReturn.Neither;
+                            readNodeTimestampView.setText("Timestamp Neither");
+                            break;
+                    }
+
+
+                }catch(Exception ex){
+                    Toast.makeText(getContext(), "Data read but it can't be printed.", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+
+    }
+    //==============================================================================================
+
+
+
+    //Write ========================================================================================
+    /*
+    * TextView readNodeValueView;
+    * TextView readNodeTimestampView;
+    * Spinner readTimestamp;
+    */
+
+    TextView writeNodeStausView;
+
+    private void ShowWriteDialog(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_write, null);
+
+        //Text info node
+        TextView writeNameNodeView = (TextView) dialogView.findViewById(R.id.writeNameNodeTextView);
+        TextView writeNamespaceView = (TextView) dialogView.findViewById(R.id.writeNamespaceTextView);
+        TextView writeNodeIndexView = (TextView) dialogView.findViewById(R.id.writeNodeIndexTextView);
+
+        //Text result
+        readNodeValueView = (TextView) dialogView.findViewById(R.id.writeResultNodeValuetextView);
+        writeNodeStausView = (TextView) dialogView.findViewById(R.id.writeResultNodeStatustextView);
+        readNodeTimestampView = (TextView) dialogView.findViewById(R.id.writeResultNodeTimestamptextView);
+
+        //Button
+        Button writeButton = (Button) dialogView.findViewById(R.id.writeButton);
+        Button writeCloseButton = (Button) dialogView.findViewById(R.id.writeCloseButton);
+
+        //Parameters
+        readTimestamp = (Spinner) dialogView.findViewById(R.id.writeTimestampSpinner);
+        String[] items = new String[]{"Source", "Server", "Both", "Neither"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, items);
+        readTimestamp.setAdapter(adapter);
+        //Value che viene inserito dall'utente
+        final EditText writeValueView = (EditText) dialogView.findViewById(R.id.writeValueTextView);
+
+        ReferenceDescription r = references[selectedNodeIndex];
+        writeNameNodeView.setText(r.getDisplayName().getText());
+        writeNamespaceView.setText("Namespace: " + r.getNodeId().getNamespaceIndex() + "");
+        writeNodeIndexView.setText("NamespaceIndex: " + r.getNodeId().getValue().toString());
+        readNodeValueView.setText("Value: ");
+        readNodeTimestampView.setText("Timestamp: ");
+        writeNodeStausView.setText("Status: ");
+
+        writeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+            }
+        });
+
+        writeCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
 
 
 
