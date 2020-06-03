@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.NodeAdapter;
 import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 
+import org.opcfoundation.ua.builtintypes.DataValue;
 import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
 import org.opcfoundation.ua.builtintypes.NodeId;
 import org.opcfoundation.ua.builtintypes.UnsignedByte;
@@ -42,12 +44,17 @@ import org.opcfoundation.ua.core.BrowseDirection;
 import org.opcfoundation.ua.core.BrowseRequest;
 import org.opcfoundation.ua.core.BrowseResponse;
 import org.opcfoundation.ua.core.BrowseResultMask;
+import org.opcfoundation.ua.core.CreateMonitoredItemsRequest;
 import org.opcfoundation.ua.core.CreateSubscriptionRequest;
 import org.opcfoundation.ua.core.CreateSubscriptionResponse;
 import org.opcfoundation.ua.core.Identifiers;
+import org.opcfoundation.ua.core.MonitoredItemCreateRequest;
+import org.opcfoundation.ua.core.MonitoringParameters;
 import org.opcfoundation.ua.core.NodeClass;
 import org.opcfoundation.ua.core.ReferenceDescription;
 import org.opcfoundation.ua.core.RequestHeader;
+import org.opcfoundation.ua.core.WriteRequest;
+import org.opcfoundation.ua.core.WriteValue;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -334,7 +341,7 @@ public class BrowserFragment extends Fragment {
                 })
                 .setNegativeButton("Abort", null);
 
-        final AlertDialog ad = builder.show();
+        builder.show();
     }
 
     public void CreateSubscription(final ExtendedSubscription es){
@@ -381,6 +388,40 @@ public class BrowserFragment extends Fragment {
     }
 
     public void ShowCreateMonitoredItemDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_monitoreditem, null);
+
+        final EditText samplingText = (EditText) dialogView.findViewById(R.id.monSamplingText);
+        final EditText queueText = (EditText) dialogView.findViewById(R.id.monQueueText);
+        final EditText deadbandText = (EditText) dialogView.findViewById(R.id.monDeadbandText);
+        final Spinner triggerSpinner = (Spinner) dialogView.findViewById(R.id.monTriggerSpinner);
+        final Spinner typeSpinner = (Spinner) dialogView.findViewById(R.id.monTypeSpinner);
+
+        builder.setView(dialogView)
+                // Add action buttons
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        CreateSubscriptionRequest req = new CreateSubscriptionRequest();
+
+                        if(samplingText.getText().toString().isEmpty()){
+                            samplingText.setText("0");
+                        }
+                        if(queueText.getText().toString().isEmpty()){
+                            queueText.setText("1");
+                        }
+
+     
+                    }
+                })
+                .setNegativeButton("Abort", null);
+
+        builder.show();
+
+        CreateMonitoredItemsRequest req = new CreateMonitoredItemsRequest();
+        MonitoredItemCreateRequest m = new MonitoredItemCreateRequest();
+        MonitoringParameters mp = new MonitoringParameters();
 
     }
 
