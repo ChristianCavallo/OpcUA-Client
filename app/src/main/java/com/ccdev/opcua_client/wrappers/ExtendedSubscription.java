@@ -17,11 +17,7 @@ public class ExtendedSubscription {
     public ExtendedSubscription(String name, CreateSubscriptionRequest request) {
         this.name = name;
         this.request = request;
-    }
-
-    public ExtendedSubscription(CreateSubscriptionRequest request, CreateSubscriptionResponse response) {
-        this.request = request;
-        this.response = response;
+        monitoredItems = new ArrayList<>();
     }
 
     public CreateSubscriptionRequest getRequest() {

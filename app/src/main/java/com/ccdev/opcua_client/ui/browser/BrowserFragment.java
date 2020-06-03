@@ -33,10 +33,12 @@ import android.widget.Toast;
 import com.ccdev.opcua_client.Core;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.NodeAdapter;
+import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 
 import org.opcfoundation.ua.builtintypes.DataValue;
 import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
+import org.opcfoundation.ua.builtintypes.ExtensionObject;
 import org.opcfoundation.ua.builtintypes.NodeId;
 import org.opcfoundation.ua.builtintypes.UnsignedByte;
 import org.opcfoundation.ua.builtintypes.UnsignedInteger;
@@ -48,10 +50,15 @@ import org.opcfoundation.ua.core.BrowseRequest;
 import org.opcfoundation.ua.core.BrowseResponse;
 import org.opcfoundation.ua.core.BrowseResultMask;
 import org.opcfoundation.ua.core.CreateMonitoredItemsRequest;
+import org.opcfoundation.ua.core.CreateMonitoredItemsResponse;
 import org.opcfoundation.ua.core.CreateSubscriptionRequest;
 import org.opcfoundation.ua.core.CreateSubscriptionResponse;
+import org.opcfoundation.ua.core.DataChangeFilter;
+import org.opcfoundation.ua.core.DataChangeTrigger;
+import org.opcfoundation.ua.core.DeadbandType;
 import org.opcfoundation.ua.core.Identifiers;
 import org.opcfoundation.ua.core.MonitoredItemCreateRequest;
+import org.opcfoundation.ua.core.MonitoringMode;
 import org.opcfoundation.ua.core.MonitoringParameters;
 import org.opcfoundation.ua.core.NodeClass;
 import org.opcfoundation.ua.core.ReadRequest;
@@ -266,7 +273,6 @@ public class BrowserFragment extends Fragment {
 
     //SUBSCRIPTION =================================================================================
     ExtendedSubscription selectedSubscription;
-    ProgressDialog dialog;
 
     private void ShowSubscriptionChooseDialog(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -364,6 +370,8 @@ public class BrowserFragment extends Fragment {
                             return;
                         }
                         ExtendedSubscription es = new ExtendedSubscription(displayNameText.getText().toString().trim(), req);
+
+
                         CreateSubscription(es);
                     }
                 })
@@ -387,7 +395,7 @@ public class BrowserFragment extends Fragment {
             @Override
             public void run() {
                 dialog = ProgressDialog.show(getContext(), "","Creating subscription...", true);
-               }
+            }
         });
 
         ServiceResultException exception = null;
@@ -403,7 +411,9 @@ public class BrowserFragment extends Fragment {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
+
                 dialog.dismiss();
+
                 if(finalException != null){
                     Toast.makeText(getContext(), "Error: " + finalException.getStatusCode().getDescription() + ". Code: " + finalException.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
                 } else {
@@ -425,33 +435,168 @@ public class BrowserFragment extends Fragment {
         final EditText deadbandText = (EditText) dialogView.findViewById(R.id.monDeadbandText);
         final Spinner triggerSpinner = (Spinner) dialogView.findViewById(R.id.monTriggerSpinner);
         final Spinner typeSpinner = (Spinner) dialogView.findViewById(R.id.monTypeSpinner);
+        final RadioButton discardOldestRadio = (RadioButton) dialogView.findViewById(R.id.monDiscardOldestRadioButton);
+        final Spinner timestampSpinner = (Spinner) dialogView.findViewById(R.id.monTimestampSpinner);
+
+        String[] timestamps = new String[]{"Source", "Server", "Both", "Neither"};
+        ArrayAdapter<String> timestampsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, timestamps);
+        timestampSpinner.setAdapter(timestampsAdapter);
+
+        String[] triggers = new String[]{"Status", "Status + Value", "Status + Value + Timestamp"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, triggers);
+        triggerSpinner.setAdapter(adapter);
+
+        String[] types = new String[]{"None", "Percent", "Absolute"};
+        ArrayAdapter<String> adapterTypes = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, types);
+        typeSpinner.setAdapter(adapterTypes);
+
+        triggerSpinner.setSelection(1);
+        typeSpinner.setSelection(0);
 
         builder.setView(dialogView)
                 // Add action buttons
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        CreateSubscriptionRequest req = new CreateSubscriptionRequest();
+                        CreateMonitoredItemsRequest req = new CreateMonitoredItemsRequest();
+                        MonitoredItemCreateRequest m = new MonitoredItemCreateRequest();
+                        MonitoringParameters mp = new MonitoringParameters();
 
                         if(samplingText.getText().toString().isEmpty()){
                             samplingText.setText("0");
                         }
+                        if(deadbandText.getText().toString().isEmpty()){
+                            deadbandText.setText("0");
+                        }
                         if(queueText.getText().toString().isEmpty()){
                             queueText.setText("1");
                         }
+                        if(Integer.parseInt(queueText.getText().toString()) > 100){
+                            queueText.setText("100");
+                        }
+
+                        DataChangeFilter filter = new DataChangeFilter();
+                        switch(triggerSpinner.getSelectedItemPosition()){
+                            case 0:
+                                filter.setTrigger(DataChangeTrigger.Status);
+                                break;
+                            case 1:
+                                filter.setTrigger(DataChangeTrigger.StatusValue);
+                                break;
+                            case 2:
+                                filter.setTrigger(DataChangeTrigger.StatusValueTimestamp);
+                                break;
+                        }
+
+                        switch(typeSpinner.getSelectedItemPosition()){
+                            case 0:
+                                filter.setDeadbandType(new UnsignedInteger(DeadbandType.None.getValue()));
+                                break;
+                            case 1:
+                                filter.setDeadbandType(new UnsignedInteger(DeadbandType.Percent.getValue()));
+                                break;
+                            case 2:
+                                filter.setDeadbandType(new UnsignedInteger(DeadbandType.Absolute.getValue()));
+                                break;
+                        }
+
+                        filter.setDeadbandValue(Double.parseDouble(deadbandText.getText().toString().trim()));
+
+                        ExtensionObject fil = new ExtensionObject(filter);
+                        mp.setFilter(fil);
+
+                        mp.setDiscardOldest(discardOldestRadio.isChecked());
+                        mp.setQueueSize(UnsignedInteger.parseUnsignedInteger(queueText.getText().toString().trim()));
+                        mp.setSamplingInterval(Double.parseDouble(samplingText.getText().toString().trim()));
+                        int mId = (int) (Math.random() * 1000000);
+                        mp.setClientHandle(new UnsignedInteger(mId));
+
+                        switch (timestampSpinner.getSelectedItemPosition()){
+                            case 0:
+                                req.setTimestampsToReturn(TimestampsToReturn.Source);
+                                break;
+                            case 1:
+                                req.setTimestampsToReturn(TimestampsToReturn.Server);
+                                break;
+                            case 2:
+                                req.setTimestampsToReturn(TimestampsToReturn.Both);
+                                break;
+                            case 3:
+                                req.setTimestampsToReturn(TimestampsToReturn.Neither);
+                                break;
+                        }
+
+                        ExpandedNodeId en = references[selectedNodeIndex].getNodeId();
+                        NodeId n = NodeId.get(en.getIdType(), en.getNamespaceIndex(), en.getValue());
+                        ReadValueId rvi = new ReadValueId();
+                        rvi.setNodeId(n);
+                        rvi.setAttributeId(Attributes.Value);
+
+                        m.setItemToMonitor(rvi);
+                        m.setMonitoringMode(MonitoringMode.Reporting);
+                        m.setRequestedParameters(mp);
+
+                        req.setItemsToCreate(new MonitoredItemCreateRequest[]{m});
+                        req.setSubscriptionId(selectedSubscription.getResponse().getSubscriptionId());
 
 
+                        CreateMonitoredItem(req);
                     }
                 })
                 .setNegativeButton("Abort", null);
 
         builder.show();
 
-        CreateMonitoredItemsRequest req = new CreateMonitoredItemsRequest();
-        MonitoredItemCreateRequest m = new MonitoredItemCreateRequest();
-        MonitoringParameters mp = new MonitoringParameters();
+
 
     }
+
+    private void CreateMonitoredItem(final CreateMonitoredItemsRequest req){
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CreateMonitoredItem(req);
+                }
+            }).start();
+            return;
+        }
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(getContext(), "","Creating monitored item...", true);
+            }
+        });
+        CreateMonitoredItemsResponse res = null;
+        ServiceResultException exception = null;
+        try {
+            res = Core.getInstance().getSessionChannel().CreateMonitoredItems(req);
+        } catch (ServiceResultException ex) {
+            ex.printStackTrace();
+            exception = ex;
+        }
+
+        final ServiceResultException e = exception;
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+                if(e != null){
+                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "Monitored Item created correctly.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        if(exception == null){
+            ExtendedMonitoredItem emi = new ExtendedMonitoredItem(req.getItemsToCreate()[0].getRequestedParameters().getClientHandle().intValue(),
+                    req, res.getResults()[0]);
+
+            selectedSubscription.getMonitoredItems().add(emi);
+        }
+    }
+
 
     //==============================================================================================
 
@@ -529,9 +674,6 @@ public class BrowserFragment extends Fragment {
                 rv.setNodeId(n);
                 req.setNodesToRead(new ReadValueId[]{rv});
 
-                dialog = ProgressDialog.show(getContext(), "",
-                        "Reading node value...", true);
-
                 ReadNode(req);
 
             }
@@ -557,6 +699,13 @@ public class BrowserFragment extends Fragment {
             return;
         }
 
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(getContext(), "",
+                        "Reading node value...", true);
+            }
+        });
         ReadResponse res = null;
         try {
              res = Core.getInstance().getSessionChannel().Read(req);
