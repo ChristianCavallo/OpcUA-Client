@@ -83,43 +83,7 @@ android:orientation="vertical">
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
-                    android:text="Parameters:"
-                    android:textColor="@android:color/holo_blue_dark" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/writeTimestampTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="6dp"
-                        android:text="Timestamp:"
-                        android:textSize="18sp" />
-
-                    <Spinner
-                        android:id="@+id/writeTimestampSpinner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/writeValueTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:ems="10"
-                    android:hint="New value:"
-                    android:inputType="textPersonName" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:text="Result write:"
+                    android:text="Current value:"
                     android:textColor="@android:color/holo_blue_dark" />
 
                 <TextView
@@ -131,14 +95,6 @@ android:orientation="vertical">
                     android:textSize="18sp" />
 
                 <TextView
-                    android:id="@+id/writeResultNodeStatustextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:text="Status:"
-                    android:textSize="18sp" />
-
-                <TextView
                     android:id="@+id/writeResultNodeTimestamptextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -146,6 +102,45 @@ android:orientation="vertical">
                     android:layout_marginBottom="8dp"
                     android:text="Timestamp:"
                     android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/writeDataTypeTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="DataType"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:text="Parameters:"
+                        android:textColor="@android:color/holo_blue_dark" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/writeResultNodeStatustextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:text="Status:"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/writeValueTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:ems="10"
+                    android:hint="New value:"
+                    android:inputType="textPersonName" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
