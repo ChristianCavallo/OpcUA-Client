@@ -7,81 +7,42 @@
     android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
 
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tank:" />
-
-                <ImageView
-                    android:id="@+id/imageView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/pause_24dp" />
-
-                <ImageView
-                    android:id="@+id/imageView4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/delete_24dp" />
-            </LinearLayout>
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="bottom|center_horizontal"
                 android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TextView" />
-
-                <ImageView
-                    android:id="@+id/imageView5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_cistern_color" />
 
                 <com.lukelorusso.verticalseekbar.VerticalSeekBar
-                    android:layout_width = "160dp"
-                    android:layout_height = "280dp"
-
-                    app:vsb_click_to_set_progress="false"
-                    app:vsb_bar_corner_radius="15dp"
-                    app:vsb_bar_width="60dp"
-                    app:vsb_bar_background="#eeeeee"
-                    app:vsb_bar_progress_gradient_end="#4dd0e1"
-                    app:vsb_bar_progress_gradient_start="#03a2ba"
-                    app:vsb_max_placeholder_position="inside"
-
-                    app:vsb_min_placeholder_position="inside"
-
-                    app:vsb_progress="50"
-                    app:vsb_show_thumb="true"
-                    app:vsb_thumb_container_corner_radius="5dp"
-
-                    app:vsb_use_thumb_to_set_progress="true"
-
-                    />
-
-
+                    android:layout_width="55dp"
+                    android:layout_height="80dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginBottom="-1dp"
+                    app:vsb_bar_background="#00FFFFFF"
+                    app:vsb_bar_corner_radius="5dp"
+                    app:vsb_bar_progress_gradient_end="#4FC3F7"
+                    app:vsb_bar_progress_gradient_start="#B2EBF2"
+                    app:vsb_max_value="100"
+                    app:vsb_progress="30"
+                    app:vsb_show_thumb="false" />
             </LinearLayout>
-        </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_tank" />
+
+        </FrameLayout>
+
     </androidx.cardview.widget.CardView>
 </LinearLayout>

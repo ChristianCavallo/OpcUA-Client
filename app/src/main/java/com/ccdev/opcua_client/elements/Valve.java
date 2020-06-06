@@ -1,5 +1,6 @@
 package com.ccdev.opcua_client.elements;
 
+import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 public class Valve extends CustomizedElement {
@@ -7,8 +8,8 @@ public class Valve extends CustomizedElement {
     String openValue;
     String closedValue;
 
-    public Valve(int resourceId, ExtendedMonitoredItem monitoredItem) {
-        super(resourceId, monitoredItem);
+    public Valve(ExtendedMonitoredItem monitoredItem, String name) {
+        super(R.drawable.ic_valve, monitoredItem, name);
         openValue = "true";
         closedValue = "false";
     }

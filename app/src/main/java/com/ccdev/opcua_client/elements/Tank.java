@@ -8,8 +8,8 @@ public class Tank extends  CustomizedElement {
     int minValue;
     int maxValue;
 
-    public Tank(ExtendedMonitoredItem monitoredItem) {
-        super(R.drawable.ic_folder_24dp, monitoredItem);
+    public Tank(ExtendedMonitoredItem monitoredItem, String name) {
+        super(R.drawable.ic_tank, monitoredItem, name);
         this.minValue = 0;
         this.maxValue = 100;
     }
