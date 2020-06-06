@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.InputMethodManager;
 
+import com.ccdev.opcua_client.core.Core;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -16,13 +17,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Core.getInstance().ShutDown();
             }
         }).start();
-        super.onDestroy();
     }
 
     @Override

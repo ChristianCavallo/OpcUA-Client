@@ -1,7 +1,5 @@
 package com.ccdev.opcua_client.ui.connection;
 
-import androidx.lifecycle.ViewModelProviders;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -25,7 +23,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ccdev.opcua_client.Core;
+import com.ccdev.opcua_client.core.Core;
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.EndpointAdapter;
@@ -40,8 +38,6 @@ import java.util.Arrays;
 import static org.opcfoundation.ua.utils.EndpointUtil.selectByProtocol;
 
 public class ConnectionFragment extends Fragment {
-
-    private ConnectionViewModel mViewModel;
 
     public static ConnectionFragment newInstance() {
         return new ConnectionFragment();
@@ -70,6 +66,10 @@ public class ConnectionFragment extends Fragment {
         this.discoveryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(Core.getInstance().getClient() == null){
+                    Toast.makeText(getContext(), "The client is still initializating, try in a few seconds.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 StartDiscovery();
                 MainActivity.hideSoftKeyboard(getActivity());
             }
@@ -106,7 +106,6 @@ public class ConnectionFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(ConnectionViewModel.class);
     }
 
     public void StartDiscovery() {

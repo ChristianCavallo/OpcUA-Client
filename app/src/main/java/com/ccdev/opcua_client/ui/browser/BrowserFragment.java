@@ -7,12 +7,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -30,19 +28,24 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ccdev.opcua_client.core.Core;
 import com.ccdev.opcua_client.Core;
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.NodeAdapter;
+import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 
 import org.opcfoundation.ua.builtintypes.DataValue;
 import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
+import org.opcfoundation.ua.builtintypes.ExtensionObject;
 import org.opcfoundation.ua.builtintypes.NodeId;
 import org.opcfoundation.ua.builtintypes.StatusCode;
 import org.opcfoundation.ua.builtintypes.UnsignedLong;
 import org.opcfoundation.ua.builtintypes.UnsignedShort;
 import org.opcfoundation.ua.builtintypes.Variant;
+import org.opcfoundation.ua.builtintypes.UnsignedByte;
+import org.opcfoundation.ua.builtintypes.UnsignedInteger;
 import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.Attributes;
 import org.opcfoundation.ua.core.BrowseDescription;
@@ -50,8 +53,17 @@ import org.opcfoundation.ua.core.BrowseDirection;
 import org.opcfoundation.ua.core.BrowseRequest;
 import org.opcfoundation.ua.core.BrowseResponse;
 import org.opcfoundation.ua.core.BrowseResultMask;
+import org.opcfoundation.ua.core.CreateMonitoredItemsRequest;
+import org.opcfoundation.ua.core.CreateMonitoredItemsResponse;
+import org.opcfoundation.ua.core.CreateSubscriptionRequest;
+import org.opcfoundation.ua.core.DataChangeFilter;
+import org.opcfoundation.ua.core.DataChangeTrigger;
+import org.opcfoundation.ua.core.DeadbandType;
 import org.opcfoundation.ua.core.DataTypeAttributes;
 import org.opcfoundation.ua.core.Identifiers;
+import org.opcfoundation.ua.core.MonitoredItemCreateRequest;
+import org.opcfoundation.ua.core.MonitoringMode;
+import org.opcfoundation.ua.core.MonitoringParameters;
 import org.opcfoundation.ua.core.NodeClass;
 import org.opcfoundation.ua.core.ReadRequest;
 import org.opcfoundation.ua.core.ReadResponse;
@@ -62,11 +74,7 @@ import org.opcfoundation.ua.core.WriteRequest;
 import org.opcfoundation.ua.core.WriteResponse;
 import org.opcfoundation.ua.core.WriteValue;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 
 public class BrowserFragment extends Fragment {
 
@@ -149,7 +157,7 @@ public class BrowserFragment extends Fragment {
         } else if(item.getTitle().equals("Write")) {
             ShowWriteDialog();
         } else if(item.getTitle().equals("Subscribe")) {
-
+            ShowSubscriptionChooseDialog();
         }
         return true;
     }
@@ -292,6 +300,12 @@ public class BrowserFragment extends Fragment {
             subscriptionsList.setVisibility(View.GONE);
         } else {
 
+            ArrayList<String> subs = new ArrayList<>();
+            for(int i = 0; i < Core.getInstance().getSubscriptions().size(); i++){
+                subs.add(Core.getInstance().getSubscriptions().get(i).getName());
+            }
+            subscriptionsList.setAdapter(new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, subs));
+
             subscriptionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -308,32 +322,280 @@ public class BrowserFragment extends Fragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_subscription, null);
 
-        EditText displayNameText = (EditText) dialogView.findViewById(R.id.subscDisplayNameText);
-        EditText publishIntervalText = (EditText) dialogView.findViewById(R.id.subscPublishIntervalText);
-        EditText keepAliveCountText = (EditText) dialogView.findViewById(R.id.subscKeepAliveCountText);
-        EditText lifetimeCountText = (EditText) dialogView.findViewById(R.id.subscLifetimeCountText);
-        EditText maxNotificationsPerPublishText = (EditText) dialogView.findViewById(R.id.subscMaxNotPerPublishText);
-        EditText priorityText = (EditText) dialogView.findViewById(R.id.subscPriorityText);
-        Switch publishEnabledSwitch = (Switch) dialogView.findViewById(R.id.subscPublishEnabledSwitch);
+        final EditText displayNameText = (EditText) dialogView.findViewById(R.id.subscDisplayNameText);
+        final EditText publishIntervalText = (EditText) dialogView.findViewById(R.id.subscPublishIntervalText);
+        final EditText keepAliveCountText = (EditText) dialogView.findViewById(R.id.subscKeepAliveCountText);
+        final EditText lifetimeCountText = (EditText) dialogView.findViewById(R.id.subscLifetimeCountText);
+        final EditText maxNotificationsPerPublishText = (EditText) dialogView.findViewById(R.id.subscMaxNotPerPublishText);
+        final EditText priorityText = (EditText) dialogView.findViewById(R.id.subscPriorityText);
+        final Switch publishEnabledSwitch = (Switch) dialogView.findViewById(R.id.subscPublishEnabledSwitch);
+
 
         builder.setView(dialogView)
                 // Add action buttons
-                .setNeutralButton("Create New", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                        ShowCreateSubscriptionDialog();
+                        CreateSubscriptionRequest req = new CreateSubscriptionRequest();
+
+                        if(publishIntervalText.getText().toString().isEmpty()){
+                            publishIntervalText.setText("1000");
+                        }
+                        if(keepAliveCountText.getText().toString().isEmpty()){
+                            keepAliveCountText.setText("10");
+                        }
+                        if(lifetimeCountText.getText().toString().isEmpty()){
+                            lifetimeCountText.setText("1000");
+                        }
+                        if(maxNotificationsPerPublishText.getText().toString().isEmpty()){
+                            maxNotificationsPerPublishText.setText("0");
+                        }
+                        if(priorityText.getText().toString().isEmpty()){
+                            priorityText.setText("255");
+                        }
+
+                        if(displayNameText.getText().toString().trim().isEmpty()){
+                            displayNameText.setText("MySubscription" + (Core.getInstance().getSubscriptions().size() + 1));
+                        }
+
+                        try{
+                            req.setRequestedPublishingInterval(Double.parseDouble(publishIntervalText.getText().toString()));
+                            req.setRequestedMaxKeepAliveCount(UnsignedInteger.parseUnsignedInteger(keepAliveCountText.getText().toString()));
+                            req.setRequestedLifetimeCount(UnsignedInteger.parseUnsignedInteger(lifetimeCountText.getText().toString()));
+                            req.setMaxNotificationsPerPublish(UnsignedInteger.parseUnsignedInteger(maxNotificationsPerPublishText.getText().toString()));
+                            req.setPriority(UnsignedByte.parseUnsignedByte(priorityText.getText().toString()));
+                            req.setPublishingEnabled(publishEnabledSwitch.isChecked());
+                        }catch(Exception e){
+                            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        ExtendedSubscription es = new ExtendedSubscription(displayNameText.getText().toString().trim(), req);
+
+
+                        CreateSubscription(es);
                     }
                 })
                 .setNegativeButton("Abort", null);
 
-        final AlertDialog ad = builder.show();
+        builder.show();
+    }
+
+    public void CreateSubscription(final ExtendedSubscription es){
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CreateSubscription(es);
+                }
+            }).start();
+            return;
+        }
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(getContext(), "","Creating subscription...", true);
+            }
+        });
+
+        ServiceResultException exception = null;
+        try {
+            Core.getInstance().createSubscription(es);
+        } catch (ServiceResultException ex) {
+            ex.printStackTrace();
+            exception = ex;
+            return;
+        }
+
+        final ServiceResultException finalException = exception;
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+
+                dialog.dismiss();
+
+                if(finalException != null){
+                    Toast.makeText(getContext(), "Error: " + finalException.getStatusCode().getDescription() + ". Code: " + finalException.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "Subscription created.", Toast.LENGTH_LONG).show();
+                    selectedSubscription = es;
+                    ShowCreateMonitoredItemDialog();
+                }
+            }
+        });
     }
 
     public void ShowCreateMonitoredItemDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_monitoreditem, null);
+
+        final EditText samplingText = (EditText) dialogView.findViewById(R.id.monSamplingText);
+        final EditText queueText = (EditText) dialogView.findViewById(R.id.monQueueText);
+        final EditText deadbandText = (EditText) dialogView.findViewById(R.id.monDeadbandText);
+        final Spinner triggerSpinner = (Spinner) dialogView.findViewById(R.id.monTriggerSpinner);
+        final Spinner typeSpinner = (Spinner) dialogView.findViewById(R.id.monTypeSpinner);
+        final RadioButton discardOldestRadio = (RadioButton) dialogView.findViewById(R.id.monDiscardOldestRadioButton);
+        final Spinner timestampSpinner = (Spinner) dialogView.findViewById(R.id.monTimestampSpinner);
+
+        String[] timestamps = new String[]{"Source", "Server", "Both", "Neither"};
+        ArrayAdapter<String> timestampsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, timestamps);
+        timestampSpinner.setAdapter(timestampsAdapter);
+
+        String[] triggers = new String[]{"Status", "Status + Value", "Status + Value + Timestamp"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, triggers);
+        triggerSpinner.setAdapter(adapter);
+
+        String[] types = new String[]{"None", "Percent", "Absolute"};
+        ArrayAdapter<String> adapterTypes = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, types);
+        typeSpinner.setAdapter(adapterTypes);
+
+        triggerSpinner.setSelection(1);
+        typeSpinner.setSelection(0);
+
+        builder.setView(dialogView)
+                // Add action buttons
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        CreateMonitoredItemsRequest req = new CreateMonitoredItemsRequest();
+                        MonitoredItemCreateRequest m = new MonitoredItemCreateRequest();
+                        MonitoringParameters mp = new MonitoringParameters();
+
+                        if(samplingText.getText().toString().isEmpty()){
+                            samplingText.setText("0");
+                        }
+                        if(deadbandText.getText().toString().isEmpty()){
+                            deadbandText.setText("0");
+                        }
+                        if(queueText.getText().toString().isEmpty()){
+                            queueText.setText("1");
+                        }
+                        if(Integer.parseInt(queueText.getText().toString()) > 100){
+                            queueText.setText("100");
+                        }
+
+                        DataChangeFilter filter = new DataChangeFilter();
+                        switch(triggerSpinner.getSelectedItemPosition()){
+                            case 0:
+                                filter.setTrigger(DataChangeTrigger.Status);
+                                break;
+                            case 1:
+                                filter.setTrigger(DataChangeTrigger.StatusValue);
+                                break;
+                            case 2:
+                                filter.setTrigger(DataChangeTrigger.StatusValueTimestamp);
+                                break;
+                        }
+
+                        switch(typeSpinner.getSelectedItemPosition()){
+                            case 0:
+                                filter.setDeadbandType(new UnsignedInteger(DeadbandType.None.getValue()));
+                                break;
+                            case 1:
+                                filter.setDeadbandType(new UnsignedInteger(DeadbandType.Percent.getValue()));
+                                break;
+                            case 2:
+                                filter.setDeadbandType(new UnsignedInteger(DeadbandType.Absolute.getValue()));
+                                break;
+                        }
+
+                        filter.setDeadbandValue(Double.parseDouble(deadbandText.getText().toString().trim()));
+
+                        ExtensionObject fil = new ExtensionObject(filter);
+                        mp.setFilter(fil);
+
+                        mp.setDiscardOldest(discardOldestRadio.isChecked());
+                        mp.setQueueSize(UnsignedInteger.parseUnsignedInteger(queueText.getText().toString().trim()));
+                        mp.setSamplingInterval(Double.parseDouble(samplingText.getText().toString().trim()));
+                        int mId = (int) (Math.random() * 1000000);
+                        mp.setClientHandle(new UnsignedInteger(mId));
+
+                        switch (timestampSpinner.getSelectedItemPosition()){
+                            case 0:
+                                req.setTimestampsToReturn(TimestampsToReturn.Source);
+                                break;
+                            case 1:
+                                req.setTimestampsToReturn(TimestampsToReturn.Server);
+                                break;
+                            case 2:
+                                req.setTimestampsToReturn(TimestampsToReturn.Both);
+                                break;
+                            case 3:
+                                req.setTimestampsToReturn(TimestampsToReturn.Neither);
+                                break;
+                        }
+
+                        ExpandedNodeId en = references[selectedNodeIndex].getNodeId();
+                        NodeId n = NodeId.get(en.getIdType(), en.getNamespaceIndex(), en.getValue());
+                        ReadValueId rvi = new ReadValueId();
+                        rvi.setNodeId(n);
+                        rvi.setAttributeId(Attributes.Value);
+
+                        m.setItemToMonitor(rvi);
+                        m.setMonitoringMode(MonitoringMode.Reporting);
+                        m.setRequestedParameters(mp);
+
+                        req.setItemsToCreate(new MonitoredItemCreateRequest[]{m});
+                        req.setSubscriptionId(selectedSubscription.getResponse().getSubscriptionId());
+
+
+                        CreateMonitoredItem(req);
+                    }
+                })
+                .setNegativeButton("Abort", null);
+
+        builder.show();
+
+
 
     }
 
+    private void CreateMonitoredItem(final CreateMonitoredItemsRequest req){
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CreateMonitoredItem(req);
+                }
+            }).start();
+            return;
+        }
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(getContext(), "","Creating monitored item...", true);
+            }
+        });
+        CreateMonitoredItemsResponse res = null;
+        ServiceResultException exception = null;
+        try {
+            res = Core.getInstance().getSessionChannel().CreateMonitoredItems(req);
+        } catch (ServiceResultException ex) {
+            ex.printStackTrace();
+            exception = ex;
+        }
+
+        final ServiceResultException e = exception;
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+                if(e != null){
+                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "Monitored Item created correctly.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        if(exception == null){
+            ExtendedMonitoredItem emi = new ExtendedMonitoredItem(references[selectedNodeIndex].getDisplayName().getText(), req.getItemsToCreate()[0].getRequestedParameters().getClientHandle().intValue(),
+                    req, res.getResults()[0]);
+
+            selectedSubscription.getMonitoredItems().add(emi);
+        }
+    }
 
 
     //==============================================================================================
