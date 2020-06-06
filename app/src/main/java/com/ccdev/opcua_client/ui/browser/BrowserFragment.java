@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ccdev.opcua_client.core.Core;
-import com.ccdev.opcua_client.Core;
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.NodeAdapter;
