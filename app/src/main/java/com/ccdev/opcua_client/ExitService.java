@@ -6,6 +6,8 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
+import com.ccdev.opcua_client.core.Core;
+
 public class ExitService extends Service {
     @Nullable
     @Override

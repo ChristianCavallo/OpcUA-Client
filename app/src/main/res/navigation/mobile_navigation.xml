@@ -12,17 +12,6 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.ccdev.opcua_client.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
-
-    <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.ccdev.opcua_client.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
-    <fragment
         android:id="@+id/navigation_connection"
         android:name="com.ccdev.opcua_client.ui.connection.ConnectionFragment"
         android:label="fragment_connection"
@@ -32,4 +21,9 @@
         android:name="com.ccdev.opcua_client.ui.browser.BrowserFragment"
         android:label="fragment_browser"
         tools:layout="@layout/fragment_browser" />
+    <fragment
+        android:id="@+id/navigation_subscriptions"
+        android:name="com.ccdev.opcua_client.ui.subscription.SubscriptionsFragment"
+        android:label="fragment_subscriptions"
+        tools:layout="@layout/fragment_subscriptions" />
 </navigation>

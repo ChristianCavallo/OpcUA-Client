@@ -12,7 +12,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <LinearLayout
@@ -144,7 +144,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:text="Trigger"
-                        android:textColor="@android:color/holo_blue_dark" />
+                        android:textColor="@color/colorSecondary" />
 
                     <Spinner
                         android:id="@+id/monTriggerSpinner"
@@ -164,7 +164,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:text="Filter Type"
-                        android:textColor="@android:color/holo_blue_dark" />
+                        android:textColor="@color/colorSecondary" />
 
                     <Spinner
                         android:id="@+id/monTypeSpinner"
@@ -184,14 +184,15 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="5dp"
                         android:text="Deadband value"
-                        android:textColor="@android:color/holo_blue_dark" />
+                        android:textColor="@color/colorSecondary" />
 
                     <EditText
                         android:id="@+id/monDeadbandText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
                         android:ems="10"
-                        android:hint="Default: 0"
+                        android:hint="default: 0"
                         android:inputType="numberDecimal" />
 
                 </LinearLayout>
