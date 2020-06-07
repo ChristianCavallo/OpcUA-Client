@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -31,6 +33,11 @@ import android.widget.Toast;
 import com.ccdev.opcua_client.core.Core;
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
+import com.ccdev.opcua_client.elements.CustomizedElement;
+import com.ccdev.opcua_client.elements.Pump;
+import com.ccdev.opcua_client.elements.Sensor;
+import com.ccdev.opcua_client.elements.Tank;
+import com.ccdev.opcua_client.elements.Valve;
 import com.ccdev.opcua_client.ui.adapters.NodeAdapter;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
@@ -72,6 +79,7 @@ import org.opcfoundation.ua.core.TimestampsToReturn;
 import org.opcfoundation.ua.core.WriteRequest;
 import org.opcfoundation.ua.core.WriteResponse;
 import org.opcfoundation.ua.core.WriteValue;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -272,6 +280,7 @@ public class BrowserFragment extends Fragment {
 
     //SUBSCRIPTION =================================================================================
     ExtendedSubscription selectedSubscription;
+    ExtendedMonitoredItem createdMonitoredItem;
 
     private void ShowSubscriptionChooseDialog(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -584,6 +593,7 @@ public class BrowserFragment extends Fragment {
                     Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), "Monitored Item created correctly.", Toast.LENGTH_LONG).show();
+                    ShowChooseCustomizedElementDialog();
                 }
             }
         });
@@ -592,9 +602,192 @@ public class BrowserFragment extends Fragment {
             ExtendedMonitoredItem emi = new ExtendedMonitoredItem(references[selectedNodeIndex].getDisplayName().getText(), req.getItemsToCreate()[0].getRequestedParameters().getClientHandle().intValue(),
                     req, res.getResults()[0]);
 
+            createdMonitoredItem = emi;
             selectedSubscription.getMonitoredItems().add(emi);
         }
     }
+
+
+    private void ShowChooseCustomizedElementDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Do you want to link this monitored item to a customized element?");
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ShowCreateCustomizedElementDialog();
+            }
+        });
+
+        builder.setNegativeButton("No", null);
+        builder.show();
+    }
+
+    private void ShowCreateCustomizedElementDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_custom_element, null);
+
+        builder.setView(dialogView);
+
+        builder.setNegativeButton("Abort", null);
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final EditText elementNameText = (EditText) dialogView.findViewById(R.id.elementNameTextView);
+        final Spinner elementSpinner = (Spinner) dialogView.findViewById(R.id.elementsSpinner);
+
+        final ImageView elementImage = (ImageView) dialog.findViewById(R.id.elementImageView);
+        final TextView elementHeaderView = (TextView) dialogView.findViewById(R.id.elementHeaderTextView);
+
+        final TextView minValueView = (TextView) dialogView.findViewById(R.id.elementMinValueTextView);
+        final EditText minText = (EditText) dialogView.findViewById(R.id.elementMinValueEditText);
+
+        final TextView maxValueView = (TextView) dialogView.findViewById(R.id.elementMaxValueTextView);
+        final EditText maxText = (EditText) dialogView.findViewById(R.id.elementMaxValueEditText);
+
+        String[] elements = new String[]{"Tank", "Pump", "Valve", "Sensor"};
+        ArrayAdapter<String> elementsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, elements);
+        elementSpinner.setAdapter(elementsAdapter);
+
+        elementSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                minText.setText("");
+                maxText.setText("");
+                    switch(position){
+                        case 0:
+                            elementImage.setImageResource(R.drawable.ic_tank);
+                            elementHeaderView.setText("Set a range of values for the tank's level");
+                            minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            minText.setHint("Ex: 0");
+                            minValueView.setText("Min value:");
+                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            maxText.setHint("Ex: 100");
+                            maxValueView.setText("Max value:");
+                            break;
+                        case 1:
+                            elementImage.setImageResource(R.drawable.ic_pump);
+                            elementHeaderView.setText("Set a range of values for the pump speed (RPM)");
+                            minText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            minText.setHint("Ex: 0");
+                            minValueView.setText("Min value:");
+                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            maxValueView.setText("Max value:");
+                            maxText.setHint("Ex: 10000");
+                            break;
+                        case 2:
+                            elementImage.setImageResource(R.drawable.ic_valve_open);
+                            elementHeaderView.setText("Set two values to map the valve's state");
+                            minText.setInputType(InputType.TYPE_CLASS_TEXT);
+                            minValueView.setText("Open value:");
+                            minText.setHint("Ex: 1 or True");
+                            maxText.setInputType(InputType.TYPE_CLASS_TEXT);
+                            maxValueView.setText("Closed value:");
+                            maxText.setHint("Ex: 0 or False");
+                            break;
+                        case 3:
+                            elementImage.setImageResource(R.drawable.ic_sensor);
+                            elementHeaderView.setText("Optionally, set a range of values");
+                            minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            minValueView.setText("Min value:");
+                            minText.setHint("Ex: 0");
+                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            maxValueView.setText("Max value:");
+                            maxText.setHint("Ex: 60,32");
+                            break;
+                        default:
+                            break;
+                    }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                //DATA VALIDATION
+                if(elementNameText.getText().toString().isEmpty()){
+                    Toast.makeText(getContext(), "You didn't put any name.", Toast.LENGTH_LONG).show();
+                    elementNameText.requestFocus();
+                    return;
+                }
+
+                CustomizedElement e = null;
+
+                String name = elementNameText.getText().toString().trim();
+
+                try{
+                    switch (elementSpinner.getSelectedItemPosition()){
+                        case 0: {
+                            e = new Tank(createdMonitoredItem, name);
+                            Tank t = (Tank) e;
+                            t.setMinValue(new Double(minText.getText().toString().trim()));
+                            t.setMaxValue(new Double(maxText.getText().toString().trim()));
+                        }
+                            break;
+                        case 1: {
+                            e = new Pump(createdMonitoredItem, name);
+                            Pump p = (Pump) e;
+                            p.setMinRPM(new Integer(minText.getText().toString().trim()));
+                            p.setMaxRPM(new Integer(maxText.getText().toString().trim()));
+                        }
+                            break;
+                        case 2:
+                        {
+                            if(minText.getText().toString().isEmpty() || maxText.getText().toString().isEmpty()){
+                                throw new Exception("Invalid range values for this valve.");
+                            }
+                            e = new Valve(createdMonitoredItem, name);
+                            Valve va = (Valve) e;
+                            va.setOpenValue(minText.getText().toString());
+                            va.setClosedValue(maxText.getText().toString());
+                        }
+                            break;
+                        case 3:
+                        {
+                            e = new Sensor(createdMonitoredItem, name);
+                            Sensor s = (Sensor) e;
+                            if(!minText.getText().toString().isEmpty() && !maxText.getText().toString().isEmpty()) {
+                                s.setMinValue(new Double(minText.getText().toString().trim()));
+                                s.setMaxValue(new Double(maxText.getText().toString().trim()));
+                            }
+                        }
+                            break;
+                    }
+
+                } catch(Exception exsa){
+                    Toast.makeText(getContext(), "Fix your range values.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if(e == null){
+                    return;
+                }
+
+                Core.getInstance().addCustomizedElement(e);
+                Toast.makeText(getContext(), e.getClass().getSimpleName() + " created.", Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            }
+        });
+
+
+    }
+
 
 
     //==============================================================================================

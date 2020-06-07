@@ -9,7 +9,7 @@ public class Valve extends CustomizedElement {
     String closedValue;
 
     public Valve(ExtendedMonitoredItem monitoredItem, String name) {
-        super(R.drawable.ic_valve, monitoredItem, name);
+        super(monitoredItem, name);
         openValue = "true";
         closedValue = "false";
     }

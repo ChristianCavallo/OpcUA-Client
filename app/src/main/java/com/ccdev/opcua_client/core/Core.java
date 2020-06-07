@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Looper;
 import android.util.Log;
 
+import com.ccdev.opcua_client.elements.CustomizedElement;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 
@@ -231,6 +232,7 @@ public class Core {
     // SUBSCRIPTIONS ===============================================================================
 
     ArrayList<ExtendedSubscription> subscriptions = new ArrayList<>();
+    ArrayList<CustomizedElement> customElements = new ArrayList<>();
 
     public void createSubscription(ExtendedSubscription ex) throws ServiceResultException {
         CreateSubscriptionResponse res = sessionChannel.CreateSubscription(ex.getRequest());
@@ -265,6 +267,7 @@ public class Core {
 
         DeleteSubscriptionsResponse res = sessionChannel.DeleteSubscriptions(req);
         if(res.getResults()[0].isGood()){
+            removeCustomizedElementsBySubscription(ex);
             subscriptions.remove(ex);
             if(subscriptions.isEmpty()){
                 stopPublisher();
@@ -340,14 +343,44 @@ public class Core {
 
         DeleteMonitoredItemsResponse res = sessionChannel.DeleteMonitoredItems(req);
         if(res.getResults()[0].isGood()){
+            removeCustomizedElementByMonitoredItem(ex);
             subscription.getMonitoredItems().remove(ex);
             return true;
         }
         return false;
     }
 
+    private void removeCustomizedElementsBySubscription(ExtendedSubscription e){
+        for(int i = 0; i < e.getMonitoredItems().size(); i++){
 
-    // =============================================================================================
+            for(int j = 0; j < customElements.size(); j++){
+                if(customElements.get(j).getMonitoredItem().getId() == e.getMonitoredItems().get(i).getId()){
+                    customElements.remove(j);
+                    break;
+                }
+            }
+
+        }
+    }
+
+    private void removeCustomizedElementByMonitoredItem(ExtendedMonitoredItem e){
+        for(int i = 0; i < customElements.size(); i++){
+            if(customElements.get(i).getMonitoredItem().getId() == e.getId()){
+                customElements.remove(i);
+                break;
+            }
+        }
+    }
+
+    public void addCustomizedElement(CustomizedElement e){
+        this.customElements.add(e);
+    }
+
+    public ArrayList<CustomizedElement> getCustomElements() {
+        return customElements;
+    }
+
+// =============================================================================================
 
     // PUBLISH =====================================================================================
 

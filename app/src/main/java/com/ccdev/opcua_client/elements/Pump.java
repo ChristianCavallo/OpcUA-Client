@@ -9,7 +9,7 @@ public class Pump extends  CustomizedElement {
     double minRPM;
 
     public Pump(ExtendedMonitoredItem monitoredItem, String name) {
-        super(R.drawable.ic_pump, monitoredItem, name);
+        super(monitoredItem, name);
         this.maxRPM = 10000;
         this.minRPM = 0;
     }
