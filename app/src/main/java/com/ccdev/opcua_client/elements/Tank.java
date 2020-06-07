@@ -5,28 +5,28 @@ import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 public class Tank extends  CustomizedElement {
 
-    int minValue;
-    int maxValue;
+    double minValue;
+    double maxValue;
 
     public Tank(ExtendedMonitoredItem monitoredItem, String name) {
-        super(R.drawable.ic_tank, monitoredItem, name);
+        super(monitoredItem, name);
         this.minValue = 0;
         this.maxValue = 100;
     }
 
-    public int getMinValue() {
+    public double getMinValue() {
         return minValue;
     }
 
-    public void setMinValue(int minValue) {
+    public void setMinValue(double minValue) {
         this.minValue = minValue;
     }
 
-    public int getMaxValue() {
+    public double getMaxValue() {
         return maxValue;
     }
 
-    public void setMaxValue(int maxValue) {
+    public void setMaxValue(double maxValue) {
         this.maxValue = maxValue;
     }
 }

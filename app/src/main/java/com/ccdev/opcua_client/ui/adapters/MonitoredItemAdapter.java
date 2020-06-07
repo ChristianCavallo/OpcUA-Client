@@ -69,7 +69,7 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
         if(m.getNotifies().isEmpty()){
             holder.itemValue.setText("...");
         } else {
-            holder.itemValue.setText(m.getNotifies().get(m.getNotifies().size() - 1).getValue().getValue().toString());
+            holder.itemValue.setText(m.getNotifies().get(0).getValue().getValue().toString());
         }
 
         holder.itemRemoveButton.setOnClickListener(new View.OnClickListener() {

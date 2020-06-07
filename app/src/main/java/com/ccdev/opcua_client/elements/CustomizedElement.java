@@ -4,18 +4,12 @@ import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 public abstract class CustomizedElement {
 
-    int resourceId;
     ExtendedMonitoredItem monitoredItem;
     String name;
 
-    public CustomizedElement(int resourceId, ExtendedMonitoredItem monitoredItem, String name) {
-        this.resourceId = resourceId;
+    public CustomizedElement(ExtendedMonitoredItem monitoredItem, String name) {
         this.monitoredItem = monitoredItem;
         this.name = name;
-    }
-
-    public int getResourceId() {
-        return resourceId;
     }
 
     public ExtendedMonitoredItem getMonitoredItem() {

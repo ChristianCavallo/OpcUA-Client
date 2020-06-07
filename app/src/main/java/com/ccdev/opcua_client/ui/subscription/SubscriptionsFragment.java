@@ -68,6 +68,9 @@ public class SubscriptionsFragment extends Fragment implements CoreInterface {
             @Override
             public void run() {
                 subscriptionAdapter.notifyDataSetChanged();
+                if(Core.getInstance().getSubscriptions().isEmpty()){
+                    subscriptionAlertText.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
