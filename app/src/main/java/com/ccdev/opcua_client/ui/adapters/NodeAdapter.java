@@ -40,7 +40,7 @@ public class NodeAdapter extends ArrayAdapter<ReferenceDescription> {
 
         // Populate the data into the template view using the data object
         nameNodeView.setText(ref.getDisplayName().getText());
-        namespaceView.setText("Namespace: " + ref.getNodeId().getNamespaceIndex() + "");
+        namespaceView.setText("Namespace: " + ref.getNodeId().getNamespaceIndex());
         nodeIndexView.setText("NamespaceIndex: " + ref.getNodeId().getValue().toString());
         classNodeView.setText("Class: " + ref.getNodeClass().name());
 
