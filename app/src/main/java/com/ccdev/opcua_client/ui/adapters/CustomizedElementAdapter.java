@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ccdev.opcua_client.R;
@@ -23,13 +26,27 @@ import com.ccdev.opcua_client.elements.Pump;
 import com.ccdev.opcua_client.elements.Sensor;
 import com.ccdev.opcua_client.elements.Tank;
 import com.ccdev.opcua_client.elements.Valve;
+import com.ccdev.opcua_client.ui.home.HomeFragment;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.lukelorusso.verticalseekbar.VerticalSeekBar;
 
+import org.opcfoundation.ua.builtintypes.DateTime;
 import org.opcfoundation.ua.common.ServiceResultException;
+import org.opcfoundation.ua.core.MonitoredItemNotification;
 import org.opcfoundation.ua.core.MonitoringMode;
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -43,8 +60,11 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
     Context context;
     ProgressDialog dialog;
 
-    public CustomizedElementAdapter(List<CustomizedElement> elements) {
+    HomeFragment parent;
+
+    public CustomizedElementAdapter(List<CustomizedElement> elements, HomeFragment parent) {
         this.elements = elements;
+        this.parent = parent;
     }
 
     @Override
@@ -180,6 +200,13 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 builder.setNegativeButton("No", null);
                 builder.show();
+            }
+        });
+
+        monitorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parent.ShowChart(element);
             }
         });
     }

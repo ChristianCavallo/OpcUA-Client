@@ -10,7 +10,7 @@ import java.util.Collections;
 
 public class ExtendedMonitoredItem {
 
-    public static int notifiesListSize = 100; // 100 samples
+    public static int notifiesListSize = 10; // 10 samples
 
     CreateMonitoredItemsRequest request;
     MonitoredItemCreateResult monitoredItem;

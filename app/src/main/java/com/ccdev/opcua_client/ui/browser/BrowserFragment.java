@@ -667,20 +667,20 @@ public class BrowserFragment extends Fragment {
                         case 0:
                             elementImage.setImageResource(R.drawable.ic_tank);
                             elementHeaderView.setText("Set a range of values for the tank's level");
-                            minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
                             minText.setHint("Ex: 0");
                             minValueView.setText("Min value:");
-                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL  | InputType.TYPE_NUMBER_FLAG_SIGNED);
                             maxText.setHint("Ex: 100");
                             maxValueView.setText("Max value:");
                             break;
                         case 1:
                             elementImage.setImageResource(R.drawable.ic_pump);
                             elementHeaderView.setText("Set a range of values for the pump speed (RPM)");
-                            minText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            minText.setInputType(InputType.TYPE_CLASS_NUMBER  | InputType.TYPE_NUMBER_FLAG_SIGNED);
                             minText.setHint("Ex: 0");
                             minValueView.setText("Min value:");
-                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER  | InputType.TYPE_NUMBER_FLAG_SIGNED);
                             maxValueView.setText("Max value:");
                             maxText.setHint("Ex: 10000");
                             break;
@@ -697,10 +697,10 @@ public class BrowserFragment extends Fragment {
                         case 3:
                             elementImage.setImageResource(R.drawable.ic_sensor);
                             elementHeaderView.setText("Optionally, set a range of values");
-                            minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
                             minValueView.setText("Min value:");
                             minText.setHint("Ex: 0");
-                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                            maxText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL  | InputType.TYPE_NUMBER_FLAG_SIGNED);
                             maxValueView.setText("Max value:");
                             maxText.setHint("Ex: 60,32");
                             break;
