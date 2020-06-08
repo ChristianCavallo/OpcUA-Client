@@ -4,13 +4,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +16,15 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ccdev.opcua_client.core.Core;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
 import com.ccdev.opcua_client.MainActivity;
 import com.ccdev.opcua_client.R;
+import com.ccdev.opcua_client.core.Core;
 import com.ccdev.opcua_client.ui.adapters.EndpointAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -66,7 +65,7 @@ public class ConnectionFragment extends Fragment {
         this.discoveryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Core.getInstance().getClient() == null){
+                if (Core.getInstance().getClient() == null) {
                     Toast.makeText(getContext(), "The client is still initializating, try in a few seconds.", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -113,7 +112,7 @@ public class ConnectionFragment extends Fragment {
         url = this.serverAddress.getText().toString().toLowerCase();
         url = url.toLowerCase().trim();
 
-        if (!url.toLowerCase().startsWith("opc.tcp://")){
+        if (!url.toLowerCase().startsWith("opc.tcp://")) {
             url = "opc.tcp://" + url;
         }
 
@@ -146,7 +145,7 @@ public class ConnectionFragment extends Fragment {
 
     }
 
-    private void DiscoveryEndpoints(){
+    private void DiscoveryEndpoints() {
         try {
 
             endpoints = new ArrayList<>();
@@ -168,12 +167,12 @@ public class ConnectionFragment extends Fragment {
         }
     }
 
-    private void UpdateEndpointsList(ArrayList<EndpointDescription> endpoints){
+    private void UpdateEndpointsList(ArrayList<EndpointDescription> endpoints) {
         EndpointAdapter adapter = new EndpointAdapter(getContext(), endpoints);
         this.endpointsList.setAdapter(adapter);
     }
 
-    private void CreateSession(){
+    private void CreateSession() {
         dialog = ProgressDialog.show(getContext(), "",
                 "Creating the session...", true);
 
@@ -206,7 +205,7 @@ public class ConnectionFragment extends Fragment {
         }).start();
     }
 
-    private void ShowAuthenticationDialog(){
+    private void ShowAuthenticationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_credentials, null);
@@ -221,7 +220,7 @@ public class ConnectionFragment extends Fragment {
                 .setPositiveButton("Activate Session", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        if(authUserPasswordRadio.isChecked() && !authUsernameText.getText().toString().isEmpty()){
+                        if (authUserPasswordRadio.isChecked() && !authUsernameText.getText().toString().isEmpty()) {
                             ActivateSession(authUsernameText.getText().toString().trim(), authPasswordText.getText().toString().trim());
                         } else {
                             ActivateSession("", "");
@@ -232,7 +231,7 @@ public class ConnectionFragment extends Fragment {
         builder.show();
     }
 
-    private void ActivateSession(final String username, final String password){
+    private void ActivateSession(final String username, final String password) {
         dialog = ProgressDialog.show(getContext(), "",
                 "Activating the session...", true);
 
@@ -265,7 +264,7 @@ public class ConnectionFragment extends Fragment {
         }).start();
     }
 
-    private void GoToHome(){
+    private void GoToHome() {
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         navController.popBackStack();
         navController.navigate(R.id.navigation_home);

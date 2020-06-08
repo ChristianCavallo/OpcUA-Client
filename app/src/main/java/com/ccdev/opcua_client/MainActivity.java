@@ -5,13 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.InputMethodManager;
 
-import com.ccdev.opcua_client.core.Core;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.ccdev.opcua_client.core.Core;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,15 +45,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void hideSoftKeyboard(Activity activity) {
-        try{
+        try {
             InputMethodManager inputMethodManager =
                     (InputMethodManager) activity.getSystemService(
                             Activity.INPUT_METHOD_SERVICE);
-            if(inputMethodManager.isAcceptingText()){
+            if (inputMethodManager.isAcceptingText()) {
                 inputMethodManager.hideSoftInputFromWindow(
                         activity.getCurrentFocus().getWindowToken(), 0);
             }
-        } catch(Exception e){
+        } catch (Exception e) {
 
         }
 

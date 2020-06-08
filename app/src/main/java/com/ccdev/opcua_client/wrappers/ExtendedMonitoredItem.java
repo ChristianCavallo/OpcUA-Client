@@ -1,12 +1,10 @@
 package com.ccdev.opcua_client.wrappers;
 
-import org.bouncycastle.util.Arrays;
 import org.opcfoundation.ua.core.CreateMonitoredItemsRequest;
 import org.opcfoundation.ua.core.MonitoredItemCreateResult;
 import org.opcfoundation.ua.core.MonitoredItemNotification;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class ExtendedMonitoredItem {
 
@@ -38,14 +36,14 @@ public class ExtendedMonitoredItem {
         return notifies;
     }
 
-    public void addRead(MonitoredItemNotification n){
-        if(notifies.size() == notifiesListSize){
-            notifies.remove(notifies.size() -1);
+    public void addRead(MonitoredItemNotification n) {
+        if (notifies.size() == notifiesListSize) {
+            notifies.remove(notifies.size() - 1);
         }
         notifies.add(0, n);
     }
 
-    public void reset(){
+    public void reset() {
         notifies.clear();
     }
 

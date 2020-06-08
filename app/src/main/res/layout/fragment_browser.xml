@@ -60,20 +60,21 @@
                 app:cardCornerRadius="10dp"
                 app:cardElevation="24dp">
 
-                <HorizontalScrollView android:layout_width="fill_parent"
+                <HorizontalScrollView
+                    android:layout_width="fill_parent"
                     android:layout_height="fill_parent">
 
                     <TextView
-                    android:id="@+id/navPathtTexView"
-                    android:singleLine="true"
-                    android:scrollHorizontally="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:padding="6dp"
-                    android:text=".../"
-                    android:textColor="@android:color/primary_text_dark_nodisable"
-                    android:textSize="24sp" />
+                        android:id="@+id/navPathtTexView"
+                        android:singleLine="true"
+                        android:scrollHorizontally="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:padding="6dp"
+                        android:text=".../"
+                        android:textColor="@android:color/primary_text_dark_nodisable"
+                        android:textSize="24sp" />
 
                 </HorizontalScrollView>
 

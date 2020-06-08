@@ -7,8 +7,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.ccdev.opcua_client.R;
-import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 import org.opcfoundation.ua.core.MonitoredItemNotification;
 
@@ -41,11 +41,11 @@ public class DialogMonitorItemAdapter extends RecyclerView.Adapter<DialogMonitor
 
         holder.valueText.setText(m.getValue().getValue().toString());
         String timestamp = "";
-        if(m.getValue().getServerTimestamp() != null){
+        if (m.getValue().getServerTimestamp() != null) {
             timestamp += "Server -> " + m.getValue().getServerTimestamp().toString() + "\n";
         }
 
-        if(m.getValue().getSourceTimestamp() != null){
+        if (m.getValue().getSourceTimestamp() != null) {
             timestamp += "Source -> " + m.getValue().getSourceTimestamp();
         }
 
@@ -58,7 +58,7 @@ public class DialogMonitorItemAdapter extends RecyclerView.Adapter<DialogMonitor
         return notificationList.size();
     }
 
-    public class DialogMonitorItemViewHolder extends RecyclerView.ViewHolder{
+    public class DialogMonitorItemViewHolder extends RecyclerView.ViewHolder {
 
         TextView timestampText;
         TextView valueText;

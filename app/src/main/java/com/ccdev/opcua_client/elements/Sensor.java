@@ -1,6 +1,5 @@
 package com.ccdev.opcua_client.elements;
 
-import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 public class Sensor extends CustomizedElement {

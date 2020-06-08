@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 
 import com.ccdev.opcua_client.R;
 
-
 import org.opcfoundation.ua.core.ReferenceDescription;
 
 
@@ -44,7 +43,7 @@ public class NodeAdapter extends ArrayAdapter<ReferenceDescription> {
         nodeIndexView.setText("NamespaceIndex: " + ref.getNodeId().getValue().toString());
         classNodeView.setText("Class: " + ref.getNodeClass().name());
 
-        switch (ref.getNodeClass().getValue()){
+        switch (ref.getNodeClass().getValue()) {
             case 0:
                 break;
             case 1:

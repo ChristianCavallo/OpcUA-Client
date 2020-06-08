@@ -1,23 +1,20 @@
 package com.ccdev.opcua_client.ui.subscription;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.core.Core;
 import com.ccdev.opcua_client.core.CoreInterface;
-import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.ui.adapters.SubscriptionAdapter;
-
-import org.w3c.dom.Text;
 
 public class SubscriptionsFragment extends Fragment implements CoreInterface {
 
@@ -52,7 +49,7 @@ public class SubscriptionsFragment extends Fragment implements CoreInterface {
 
         this.subscriptionAlertText = (TextView) root.findViewById(R.id.subscriptionAlertTextView);
 
-        if(Core.getInstance().getSubscriptions().isEmpty()){
+        if (Core.getInstance().getSubscriptions().isEmpty()) {
             this.subscriptionAlertText.setVisibility(View.VISIBLE);
         } else {
             this.subscriptionAlertText.setVisibility(View.GONE);
@@ -68,7 +65,7 @@ public class SubscriptionsFragment extends Fragment implements CoreInterface {
             @Override
             public void run() {
                 subscriptionAdapter.notifyDataSetChanged();
-                if(Core.getInstance().getSubscriptions().isEmpty()){
+                if (Core.getInstance().getSubscriptions().isEmpty()) {
                     subscriptionAlertText.setVisibility(View.VISIBLE);
                 }
             }

@@ -4,18 +4,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,7 +50,7 @@ public class HomeFragment extends Fragment implements CoreInterface {
     int chartIndex = 0;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
-            ViewGroup container, Bundle savedInstanceState) {
+                             ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
@@ -68,7 +65,7 @@ public class HomeFragment extends Fragment implements CoreInterface {
 
         Core.getInstance().registerListener(this);
 
-        if(Core.getInstance().getCustomElements().isEmpty()){
+        if (Core.getInstance().getCustomElements().isEmpty()) {
             elementAlertView.setVisibility(View.VISIBLE);
         } else {
             elementAlertView.setVisibility(View.GONE);
@@ -105,8 +102,7 @@ public class HomeFragment extends Fragment implements CoreInterface {
     }
 
 
-
-    public void ShowChart(CustomizedElement element){
+    public void ShowChart(CustomizedElement element) {
         elementsListView.setVisibility(View.GONE);
         chartLayout.setVisibility(View.VISIBLE);
         this.customElement = element;
@@ -115,22 +111,22 @@ public class HomeFragment extends Fragment implements CoreInterface {
         chartIndex = 0;
         List<Entry> entries = new ArrayList<>();
 
-        for(int i = 0; i < element.getMonitoredItem().getNotifies().size(); i++){
+        for (int i = 0; i < element.getMonitoredItem().getNotifies().size(); i++) {
 
             String val = element.getMonitoredItem().getNotifies().get(i).getValue().getValue().toString();
             Float fval = null;
 
-            if(element instanceof Valve){
+            if (element instanceof Valve) {
                 Valve valve = (Valve) element;
-                if(val.toLowerCase().equals(valve.getOpenValue().toLowerCase())){
+                if (val.toLowerCase().equals(valve.getOpenValue().toLowerCase())) {
                     fval = 1.0f;
                 } else {
                     fval = 0f;
                 }
             } else {
-                try{
+                try {
                     fval = new Float(val);
-                }catch (Exception e){
+                } catch (Exception e) {
                     continue;
                 }
             }
@@ -161,22 +157,22 @@ public class HomeFragment extends Fragment implements CoreInterface {
             public void run() {
                 elementAdapter.notifyDataSetChanged();
 
-                if(Core.getInstance().getCustomElements().isEmpty()){
+                if (Core.getInstance().getCustomElements().isEmpty()) {
                     elementAlertView.setVisibility(View.VISIBLE);
                 }
 
-                if(customElement != null){
+                if (customElement != null) {
                     long tEnd = System.currentTimeMillis();
                     long tDelta = tEnd - tStart;
                     double elapsedSeconds = tDelta / 1000.0;
 
                     tStart = System.currentTimeMillis();
 
-                    if(elapsedSeconds == 0){
+                    if (elapsedSeconds == 0) {
                         return;
                     }
 
-                    if(customElement.getMonitoredItem().getNotifies().isEmpty()){
+                    if (customElement.getMonitoredItem().getNotifies().isEmpty()) {
                         return;
                     }
 
@@ -184,22 +180,22 @@ public class HomeFragment extends Fragment implements CoreInterface {
                     String val = m.getValue().getValue().toString();
                     Float fval = null;
 
-                    if(customElement instanceof Valve){
+                    if (customElement instanceof Valve) {
                         Valve valve = (Valve) customElement;
-                        if(val.toLowerCase().equals(valve.getOpenValue().toLowerCase())){
+                        if (val.toLowerCase().equals(valve.getOpenValue().toLowerCase())) {
                             fval = 1.0f;
                         } else {
                             fval = 0f;
                         }
                     } else {
-                        try{
+                        try {
                             fval = new Float(val);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             return;
                         }
                     }
 
-                    if(dataSet.getValues().size() > ExtendedMonitoredItem.notifiesListSize){
+                    if (dataSet.getValues().size() > ExtendedMonitoredItem.notifiesListSize) {
 
                         dataSet.removeFirst();
                     }

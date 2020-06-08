@@ -1,9 +1,8 @@
 package com.ccdev.opcua_client.elements;
 
-import com.ccdev.opcua_client.R;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
-public class Tank extends  CustomizedElement {
+public class Tank extends CustomizedElement {
 
     double minValue;
     double maxValue;

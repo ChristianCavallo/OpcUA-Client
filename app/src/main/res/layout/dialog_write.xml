@@ -1,173 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:orientation="vertical">
-
-<androidx.cardview.widget.CardView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:contentPadding="10dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:contentPadding="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_description_24dp" />
-
-            <View
-                android:id="@+id/divider5"
-                android:layout_width="2dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
-
-            <TextView
-                android:id="@+id/writeNameNodeTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="Int16Value"
-                android:textSize="24sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <View
-                android:id="@+id/divider4"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="?android:attr/listDivider" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_description_24dp" />
+
+                <View
+                    android:id="@+id/divider5"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="?android:attr/listDivider" />
+
+                <TextView
+                    android:id="@+id/writeNameNodeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="Int16Value"
+                    android:textSize="24sp" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <View
+                    android:id="@+id/divider4"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="info node:"
-                    android:textColor="@android:color/holo_blue_dark" />
-
-                <TextView
-                    android:id="@+id/writeNamespaceTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:text="Namespace: 100"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/writeNodeIndexTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:text="NodeIndex: 10000"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="7dp"
-                    android:text="Current value:"
-                    android:textColor="@android:color/holo_blue_dark" />
-
-                <TextView
-                    android:id="@+id/writeResultNodeValuetextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:text="Value:"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/writeResultNodeTimestamptextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="Timestamp:"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/writeDataTypeTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="DataType"
-                    android:textSize="18sp" />
+                    android:layout_height="2dp"
+                    android:background="?android:attr/listDivider" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="info node:"
+                        android:textColor="@android:color/holo_blue_dark" />
+
+                    <TextView
+                        android:id="@+id/writeNamespaceTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:text="Namespace: 100"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/writeNodeIndexTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:text="NodeIndex: 10000"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
-                        android:text="Parameters:"
+                        android:text="Current value:"
                         android:textColor="@android:color/holo_blue_dark" />
-                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/writeResultNodeStatustextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:text="Status:"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/writeValueTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:ems="10"
-                    android:hint="New value:"
-                    android:inputType="textPersonName" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/writeButton"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/writeResultNodeValuetextView"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="write" />
+                        android:layout_marginLeft="6dp"
+                        android:text="Value:"
+                        android:textSize="18sp" />
 
-                    <Button
-                        android:id="@+id/writeCloseButton"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/writeResultNodeTimestamptextView"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Timestamp:"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/writeDataTypeTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="DataType"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:text="Parameters:"
+                            android:textColor="@android:color/holo_blue_dark" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/writeResultNodeStatustextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:text="Status:"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/writeValueTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:ems="10"
+                        android:hint="New value:"
+                        android:inputType="textPersonName" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Close" />
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/writeButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="write" />
+
+                        <Button
+                            android:id="@+id/writeCloseButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Close" />
+                    </LinearLayout>
+
                 </LinearLayout>
 
             </LinearLayout>
-
         </LinearLayout>
-    </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

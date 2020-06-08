@@ -23,9 +23,9 @@ public class Publisher implements Runnable {
     @Override
     public void run() {
         SubscriptionAcknowledgement[] acks = null;
-        while(isEnabled){
+        while (isEnabled) {
 
-            if(Core.getInstance().getSubscriptions().size() > 0){
+            if (Core.getInstance().getSubscriptions().size() > 0) {
 
                 acks = new SubscriptionAcknowledgement[Core.getInstance().getSubscriptions().size()];
                 for (int i = 0; i < Core.getInstance().getSubscriptions().size(); i++) {
@@ -36,7 +36,7 @@ public class Publisher implements Runnable {
                 try {
                     PublishResponse response = Core.getInstance().getSessionChannel().Publish(request);
                     Core.getInstance().updateSubscription(response);
-                    if(response.getNotificationMessage().getNotificationData().length > 0){
+                    if (response.getNotificationMessage().getNotificationData().length > 0) {
                         Core.getInstance().notifyUpdate();
                     }
                 } catch (ServiceResultException e) {

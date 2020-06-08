@@ -4,10 +4,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ccdev.opcua_client.R;
@@ -29,25 +26,11 @@ import com.ccdev.opcua_client.elements.Tank;
 import com.ccdev.opcua_client.elements.Valve;
 import com.ccdev.opcua_client.ui.home.HomeFragment;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.lukelorusso.verticalseekbar.VerticalSeekBar;
 
-import org.opcfoundation.ua.builtintypes.DateTime;
 import org.opcfoundation.ua.common.ServiceResultException;
-import org.opcfoundation.ua.core.MonitoredItemNotification;
 import org.opcfoundation.ua.core.MonitoringMode;
-import org.w3c.dom.Text;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -70,19 +53,19 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemViewType(int position) {
-        if(elements.get(position) instanceof Tank){
+        if (elements.get(position) instanceof Tank) {
             return TankView;
         }
 
-        if(elements.get(position) instanceof Valve){
+        if (elements.get(position) instanceof Valve) {
             return ValveView;
         }
 
-        if(elements.get(position) instanceof Sensor){
+        if (elements.get(position) instanceof Sensor) {
             return SensorView;
         }
 
-        if(elements.get(position) instanceof Pump){
+        if (elements.get(position) instanceof Pump) {
             return PumpView;
         }
 
@@ -95,20 +78,20 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View contactView;
-        switch(viewType){
+        switch (viewType) {
             case TankView:
                 contactView = inflater.inflate(R.layout.custom_listitem_tank, parent, false);
                 return new TankViewHolder(contactView);
 
             case ValveView:
                 contactView = inflater.inflate(R.layout.custom_listitem_valve, parent, false);
-                return new TankViewHolder(contactView);
+                return new ValveViewHolder(contactView);
             case PumpView:
                 contactView = inflater.inflate(R.layout.custom_listitem_pump, parent, false);
-                return new TankViewHolder(contactView);
+                return new PumpViewHolder(contactView);
             case SensorView:
                 contactView = inflater.inflate(R.layout.custom_listitem_sensor, parent, false);
-                return new TankViewHolder(contactView);
+                return new SensorViewHolder(contactView);
             default:
 
                 break;
@@ -125,11 +108,8 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         ImageView statusButton = null;
         ImageView removeButton = null;
 
-        switch(holder.getItemViewType()){
-            case TankView:
-            {
-
-
+        switch (holder.getItemViewType()) {
+            case TankView: {
                 Tank t = (Tank) element;
                 TankViewHolder h = (TankViewHolder) holder;
                 monitorButton = h.monitorView;
@@ -139,11 +119,11 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 h.nameText.setText(element.getName());
                 h.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
-                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex());
+                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
                 h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
 
                 String value = t.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
-                try{
+                try {
                     double input = new Double(value);
                     double percentage = ((input - t.getMinValue()) * 100) / (t.getMaxValue() - t.getMinValue());
                     percentage = Math.round(percentage * 100.0) / 100.0;
@@ -151,7 +131,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                     h.levelBar.setProgress((int) percentage);
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     h.levelText.setText("Wrong data type...");
                     h.levelBar.setProgress(0);
                 }
@@ -159,8 +139,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 break;
             }
 
-            case ValveView:
-            {
+            case ValveView: {
 
                 Valve v = (Valve) element;
                 ValveViewHolder h = (ValveViewHolder) holder;
@@ -172,57 +151,53 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 h.nameText.setText(element.getName());
 
                 h.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
-                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex());
+                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
                 h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
                 String value = v.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
 
-                if(v.getOpenValue().toLowerCase().equals(value.toLowerCase())){
+                if (v.getOpenValue().toLowerCase().equals(value.toLowerCase())) {
                     h.StateImageView.setImageResource(R.drawable.ic_valve_open);
                     h.StateView.setText("Opened");
 
-                }else{
+                } else {
                     h.StateImageView.setImageResource(R.drawable.ic_valve_closed);
                     h.StateView.setText("Closed");
                 }
+
             }
-
-            case PumpView:
-            {
-
-
+            break;
+            case PumpView: {
                 Pump p = (Pump) element;
                 PumpViewHolder h = (PumpViewHolder) holder;
                 monitorButton = h.monitorView;
                 statusButton = h.statusView;
                 removeButton = h.removeView;
 
-
-
                 h.nameText.setText(element.getName());
 
                 h.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
-                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex());
+                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
                 h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
                 String value = p.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
 
-                try{
+                try {
                     double input = new Double(value);
                     double percentage = ((input - p.getMinRPM()) * 100) / (p.getMaxRPM() - p.getMinRPM());
                     percentage = Math.round(percentage * 100.0) / 100.0;
 
-                    h.ValueRpmView.setText(percentage + "%");
+                    h.ValueRpmView.setText(value + " RPM");
 
                     h.ProgressBarView.setProgress((int) percentage);
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     h.ValueRpmView.setText("Wrong data type...");
                     h.ProgressBarView.setProgress(0);
                 }
 
             }
+            break;
 
-            case SensorView:
-            {
+            case SensorView: {
 
                 Sensor s = (Sensor) element;
                 SensorViewHolder h = (SensorViewHolder) holder;
@@ -233,38 +208,41 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 h.nameText.setText(element.getName());
 
                 h.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
-                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex());
+                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
                 h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
                 String value = s.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
 
-                if(s.getMinValue() == -1 && s.getMaxValue() == -1){
+                if (s.getMinValue() == -1 && s.getMaxValue() == -1) {
 
                     h.ValueView.setText(value);
                     h.ProgressBarView.setVisibility(View.GONE);
+                    h.ValueBarView.setVisibility(View.GONE);
                     break;
                 }
-                try{
+                try {
                     double input = new Double(value);
                     double percentage = ((input - s.getMinValue()) * 100) / (s.getMaxValue() - s.getMinValue());
                     percentage = Math.round(percentage * 100.0) / 100.0;
 
-                    h.ValueView.setText(percentage + "%");
+                    h.ValueView.setText(value);
+                    h.ValueBarView.setText(percentage + "%");
                     h.ProgressBarView.setVisibility(View.VISIBLE);
                     h.ProgressBarView.setProgress((int) percentage);
 
-                }catch (Exception e){
-                    h.ValueBarView.setText("Wrong data type...");
+                } catch (Exception e) {
+                    h.ValueView.setText("Wrong data type...");
                     h.ProgressBarView.setProgress(0);
                 }
 
             }
+            break;
 
             default:
 
                 break;
         }
 
-        if(monitorButton == null || statusButton == null || removeButton == null){
+        if (monitorButton == null || statusButton == null || removeButton == null) {
             return;
         }
 
@@ -275,7 +253,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
             }
         });
 
-        if(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getMonitoringMode() == MonitoringMode.Sampling){
+        if (element.getMonitoredItem().getRequest().getItemsToCreate()[0].getMonitoringMode() == MonitoringMode.Sampling) {
             statusButton.setImageResource(R.drawable.play_24dp);
         } else {
             statusButton.setImageResource(R.drawable.pause_24dp);
@@ -317,8 +295,8 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
 
-    private void switchMonitoringMode(final ExtendedMonitoredItem monitoredItem){
-        if(Looper.myLooper() == Looper.getMainLooper()){
+    private void switchMonitoringMode(final ExtendedMonitoredItem monitoredItem) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -336,7 +314,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 @Override
                 public void run() {
                     dialog.dismiss();
-                    if(result){
+                    if (result) {
                         Toast.makeText(context, "Monitoring mode switched.", Toast.LENGTH_LONG).show();
                         notifyDataSetChanged();
                     } else {
@@ -359,8 +337,8 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
     }
 
-    private void removeMonitoredItem(final ExtendedMonitoredItem m){
-        if(Looper.myLooper() == Looper.getMainLooper()){
+    private void removeMonitoredItem(final ExtendedMonitoredItem m) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -377,7 +355,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 @Override
                 public void run() {
 
-                    if(result){
+                    if (result) {
                         Toast.makeText(context, "Monitored item removed.", Toast.LENGTH_LONG).show();
                         notifyDataSetChanged();
                     } else {
@@ -509,7 +487,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         TextView NamespaceView;
         TextView ValueView;
         TextView ValueBarView;
-        ProgressBar ProgressBarView;
+        VerticalSeekBar ProgressBarView;
 
         public SensorViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -524,7 +502,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
             NamespaceView = (TextView) itemView.findViewById(R.id.sensorNamespaceTextView);
             ValueView = (TextView) itemView.findViewById(R.id.sensorValueTextView);
             ValueBarView = (TextView) itemView.findViewById(R.id.sensorValueBarTextView);
-            ProgressBarView = (ProgressBar) itemView.findViewById(R.id.sensorProgressBarTextView);
+            ProgressBarView = (VerticalSeekBar) itemView.findViewById(R.id.sensorProgressBarTextView);
 
 
         }

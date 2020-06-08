@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -24,7 +24,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
+                android:singleLine="true"
                 android:text="Sensor"
+                android:textColor="#FFB74D"
                 android:textSize="24sp" />
 
             <LinearLayout
@@ -55,6 +57,7 @@
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="10dp"
                                 android:text="Monitored Item: "
+                                android:textColor="#FFFFFF"
                                 android:textSize="14sp" />
 
                             <TextView
@@ -62,6 +65,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="Int32Vaule" />
                         </LinearLayout>
 
@@ -74,13 +78,15 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="10dp"
-                                android:text="Namespace: " />
+                                android:text="Namespace: "
+                                android:textColor="#FFFFFF" />
 
                             <TextView
                                 android:id="@+id/sensorNamespaceTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="100" />
                         </LinearLayout>
 
@@ -93,13 +99,15 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="10dp"
-                                android:text="NodeIndex: " />
+                                android:text="NodeIndex: "
+                                android:textColor="#FFFFFF" />
 
                             <TextView
                                 android:id="@+id/sensorNodeIndexTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="1000" />
                         </LinearLayout>
 
@@ -112,14 +120,16 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Value: " />
+                                android:text="Value: "
+                                android:textColor="#FFFFFF" />
 
                             <TextView
                                 android:id="@+id/sensorValueTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="100" />
+                                android:text="100"
+                                android:singleLine="true" />
 
                         </LinearLayout>
 
@@ -135,20 +145,18 @@
                     <com.lukelorusso.verticalseekbar.VerticalSeekBar
                         android:id="@+id/sensorProgressBarTextView"
                         android:layout_width="10dp"
-                        android:layout_height="100dp"
+                        android:layout_height="match_parent"
                         android:layout_marginLeft="5dp"
                         app:vsb_bar_background="#eeeeee"
-                        app:vsb_bar_corner_radius="15dp"
                         app:vsb_bar_progress_gradient_end="#4dd0e1"
                         app:vsb_bar_progress_gradient_start="#03a2ba"
-                        app:vsb_bar_width="60dp"
                         app:vsb_click_to_set_progress="false"
                         app:vsb_max_placeholder_position="inside"
                         app:vsb_min_placeholder_position="inside"
                         app:vsb_progress="50"
-                        app:vsb_show_thumb="true"
+                        app:vsb_show_thumb="false"
                         app:vsb_thumb_container_corner_radius="5dp"
-                        app:vsb_use_thumb_to_set_progress="true" />
+                        app:vsb_use_thumb_to_set_progress="false" />
 
                     <ImageView
                         android:layout_width="wrap_content"

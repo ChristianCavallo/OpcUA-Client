@@ -23,7 +23,6 @@ import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.MonitoringMode;
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -52,8 +51,6 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
         MonitoredItemViewHolder viewHolder = new MonitoredItemViewHolder(contactView);
 
 
-
-
         return viewHolder;
     }
 
@@ -66,7 +63,7 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
         holder.itemSampling.setText(m.getMonitoredItem().getRevisedSamplingInterval().intValue() + "");
         holder.itemQueueSize.setText(m.getMonitoredItem().getRevisedQueueSize().intValue() + "");
 
-        if(m.getNotifies().isEmpty()){
+        if (m.getNotifies().isEmpty()) {
             holder.itemValue.setText("...");
         } else {
             holder.itemValue.setText(m.getNotifies().get(0).getValue().getValue().toString());
@@ -90,7 +87,7 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
             }
         });
 
-        if(m.getRequest().getItemsToCreate()[0].getMonitoringMode() == MonitoringMode.Sampling){
+        if (m.getRequest().getItemsToCreate()[0].getMonitoringMode() == MonitoringMode.Sampling) {
             holder.itemStatusButton.setImageResource(R.drawable.play_24dp);
         } else {
             holder.itemStatusButton.setImageResource(R.drawable.pause_24dp);
@@ -133,16 +130,16 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
 
     }
 
-    public void notifyAdapterDatasetChanged(){
+    public void notifyAdapterDatasetChanged() {
         notifyDataSetChanged();
 
-        if(dialogAdapter != null){
+        if (dialogAdapter != null) {
             dialogAdapter.notifyDataSetChanged();
         }
     }
 
-    private void switchMonitoringMode(final ExtendedMonitoredItem monitoredItem){
-        if(Looper.myLooper() == Looper.getMainLooper()){
+    private void switchMonitoringMode(final ExtendedMonitoredItem monitoredItem) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -160,7 +157,7 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
                 @Override
                 public void run() {
                     dialog.dismiss();
-                    if(result){
+                    if (result) {
                         Toast.makeText(context, "Monitoring mode switched.", Toast.LENGTH_LONG).show();
                         notifyDataSetChanged();
                     } else {
@@ -183,8 +180,8 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
 
     }
 
-    private void removeMonitoredItem(final ExtendedMonitoredItem m){
-        if(Looper.myLooper() == Looper.getMainLooper()){
+    private void removeMonitoredItem(final ExtendedMonitoredItem m) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -201,7 +198,7 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
                 @Override
                 public void run() {
 
-                    if(result){
+                    if (result) {
                         Toast.makeText(context, "Monitored item removed.", Toast.LENGTH_LONG).show();
                         notifyDataSetChanged();
                     } else {

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +54,7 @@ public class SubscriptionAdapter extends RecyclerView.Adapter<SubscriptionAdapte
     public void onBindViewHolder(@NonNull final SubscriptionViewHolder holder, int position) {
         final ExtendedSubscription subscription = subscriptionList.get(position);
 
-        if(!subscription.getRequest().getPublishingEnabled()){
+        if (!subscription.getRequest().getPublishingEnabled()) {
             holder.statusButton.setImageResource(R.drawable.play_24dp);
         } else {
             holder.statusButton.setImageResource(R.drawable.pause_24dp);
@@ -90,7 +89,7 @@ public class SubscriptionAdapter extends RecyclerView.Adapter<SubscriptionAdapte
         holder.subscriptionName.setText(subscription.getName());
         holder.subscriptionId.setText("id: " + subscription.getResponse().getSubscriptionId().intValue());
 
-        if(holder.itemAdapter == null){
+        if (holder.itemAdapter == null) {
             LinearLayoutManager llm = new LinearLayoutManager(context);
             holder.itemAdapter = new MonitoredItemAdapter(subscription.getMonitoredItems());
             holder.monitoredItemsList.setAdapter(holder.itemAdapter);
@@ -100,8 +99,8 @@ public class SubscriptionAdapter extends RecyclerView.Adapter<SubscriptionAdapte
         }
     }
 
-    private void switchPublishingEnabled(final ExtendedSubscription subscription){
-        if(Looper.myLooper() == Looper.getMainLooper()){
+    private void switchPublishingEnabled(final ExtendedSubscription subscription) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -119,7 +118,7 @@ public class SubscriptionAdapter extends RecyclerView.Adapter<SubscriptionAdapte
                 @Override
                 public void run() {
                     dialog.dismiss();
-                    if(result){
+                    if (result) {
                         Toast.makeText(context, "Status switched for the subscription.", Toast.LENGTH_LONG).show();
                         notifyDataSetChanged();
                     } else {
@@ -143,8 +142,8 @@ public class SubscriptionAdapter extends RecyclerView.Adapter<SubscriptionAdapte
 
     }
 
-    private void removeSubscription(final ExtendedSubscription subscription){
-        if(Looper.myLooper() == Looper.getMainLooper()){
+    private void removeSubscription(final ExtendedSubscription subscription) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -160,7 +159,7 @@ public class SubscriptionAdapter extends RecyclerView.Adapter<SubscriptionAdapte
             new Handler(context.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    if(result){
+                    if (result) {
                         Toast.makeText(context, "Subscription removed.", Toast.LENGTH_LONG).show();
                         notifyDataSetChanged();
                     } else {

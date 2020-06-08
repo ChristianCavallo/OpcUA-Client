@@ -45,7 +45,7 @@ public class ExtendedSubscription {
         this.response = response;
     }
 
-    public SubscriptionAcknowledgement getAck(){
+    public SubscriptionAcknowledgement getAck() {
         return new SubscriptionAcknowledgement(this.getResponse().getSubscriptionId(), new UnsignedInteger(this.lastAck));
     }
 

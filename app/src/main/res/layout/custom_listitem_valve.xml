@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
@@ -24,7 +24,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
+                android:singleLine="true"
                 android:text="Valve"
+                android:textColor="#FFB74D"
                 android:textSize="24sp" />
 
             <LinearLayout
@@ -55,6 +57,7 @@
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="10dp"
                                 android:text="Monitored Item: "
+                                android:textColor="#FFFFFF"
                                 android:textSize="14sp" />
 
                             <TextView
@@ -62,6 +65,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="Int32Vaule" />
                         </LinearLayout>
 
@@ -74,13 +78,15 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="10dp"
-                                android:text="Namespace: " />
+                                android:text="Namespace: "
+                                android:textColor="#FFFFFF" />
 
                             <TextView
                                 android:id="@+id/valveNamespaceTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="100" />
                         </LinearLayout>
 
@@ -93,13 +99,15 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="10dp"
-                                android:text="NodeIndex: " />
+                                android:text="NodeIndex: "
+                                android:textColor="#FFFFFF" />
 
                             <TextView
                                 android:id="@+id/valveNodeIndexTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="1000" />
                         </LinearLayout>
 
@@ -112,13 +120,15 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="State: " />
+                                android:text="State: "
+                                android:textColor="#FFFFFF" />
 
                             <TextView
                                 android:id="@+id/valveStateTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:singleLine="true"
                                 android:text="Off" />
 
                         </LinearLayout>

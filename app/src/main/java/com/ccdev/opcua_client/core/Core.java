@@ -50,8 +50,7 @@ public class Core {
     }
 
     public static Core getInstance() {
-        if (_instance == null)
-        {
+        if (_instance == null) {
             _instance = new Core();
         }
         return _instance;
@@ -67,12 +66,12 @@ public class Core {
         return client;
     }
 
-    public void InitializeClient(Context t){
-        if(t != null){
+    public void InitializeClient(Context t) {
+        if (t != null) {
             this.context = t;
         }
 
-        if(Looper.myLooper() == Looper.getMainLooper()){
+        if (Looper.myLooper() == Looper.getMainLooper()) {
 
             new Thread(new Runnable() {
                 @Override
@@ -85,11 +84,11 @@ public class Core {
 
         File certFile = new File(this.context.getFilesDir(), "OPCCert.der");
         File privKeyFile = new File(this.context.getFilesDir(), "OPCCert.pem");
-        SharedPreferences sharedPref = this.context.getSharedPreferences("OpcUA_Preferences", MODE_PRIVATE);;
+        SharedPreferences sharedPref = this.context.getSharedPreferences("OpcUA_Preferences", MODE_PRIVATE);
 
         String PrivateKey = sharedPref.getString("private_key", "");
         KeyPair keys = null;
-        if(certFile.exists() && privKeyFile.exists() && !PrivateKey.isEmpty()){
+        if (certFile.exists() && privKeyFile.exists() && !PrivateKey.isEmpty()) {
 
             try {
                 Cert myCertificate = null;
@@ -104,7 +103,7 @@ public class Core {
             PrivateKey = generateString(256);
             try {
                 keys = CertificateUtils.createApplicationInstanceCertificate("OpcUA_Client", "ccdev",
-                                "com.ccdev.opcua_client", 3650);
+                        "com.ccdev.opcua_client", 3650);
                 keys.getCertificate().save(certFile);
                 keys.getPrivateKey().save(privKeyFile, PrivateKey);
                 SharedPreferences.Editor editor = sharedPref.edit();
@@ -126,31 +125,30 @@ public class Core {
         client = new Client(opcApplication);
     }
 
-    public void ShutDown(){
+    public void ShutDown() {
         try {
-             if(sessionChannel != null){
-                 sessionChannel.close();
+            if (sessionChannel != null) {
+                sessionChannel.close();
             }
-            if(publisher != null){
+            if (publisher != null) {
                 publisher.setEnabled(false);
                 publisher = null;
             }
-             client.getApplication().close();
-             _instance = null;
+            client.getApplication().close();
+            _instance = null;
             Log.i("CLIENT", "Everything closed!");
         } catch (ServiceResultException e) {
             e.printStackTrace();
         }
     }
 
-    private static String generateString(int n)
-    {
+    private static String generateString(int n) {
         String AlphaNumericString = "0123456789" + "abcdefghijklmnopqrstuvxyz";
         StringBuilder sb = new StringBuilder(n);
 
         for (int i = 0; i < n; i++) {
             int index
-                    = (int)(AlphaNumericString.length()
+                    = (int) (AlphaNumericString.length()
                     * Math.random());
             sb.append(AlphaNumericString
                     .charAt(index));
@@ -166,7 +164,7 @@ public class Core {
     EndpointDescription endpointDescription;
 
     public void createSession(String url, EndpointDescription e) throws ServiceResultException {
-        if(sessionChannel != null){
+        if (sessionChannel != null) {
             sessionChannel.close();
         }
         sessionChannel = client.createSessionChannel(url, e);
@@ -176,8 +174,8 @@ public class Core {
     }
 
     public void activateSession(String username, String password) throws ServiceResultException {
-        if(!username.isEmpty() && !password.isEmpty()){
-           sessionChannel.activate(username, password);
+        if (!username.isEmpty() && !password.isEmpty()) {
+            sessionChannel.activate(username, password);
         } else {
             sessionChannel.activate();
         }
@@ -197,7 +195,6 @@ public class Core {
     }
 
     //==============================================================================================
-
 
 
     // OBSERVER PATTERN ============================================================================
@@ -253,7 +250,7 @@ public class Core {
         request.setSubscriptionIds(new UnsignedInteger[]{ex.getResponse().getSubscriptionId()});
 
         SetPublishingModeResponse response = sessionChannel.SetPublishingMode(request);
-        if(response.getResults()[0].isGood()){
+        if (response.getResults()[0].isGood()) {
             ex.getRequest().setPublishingEnabled(status);
             return true;
         }
@@ -266,10 +263,10 @@ public class Core {
         req.setSubscriptionIds(new UnsignedInteger[]{ex.getResponse().getSubscriptionId()});
 
         DeleteSubscriptionsResponse res = sessionChannel.DeleteSubscriptions(req);
-        if(res.getResults()[0].isGood()){
+        if (res.getResults()[0].isGood()) {
             removeCustomizedElementsBySubscription(ex);
             subscriptions.remove(ex);
-            if(subscriptions.isEmpty()){
+            if (subscriptions.isEmpty()) {
                 stopPublisher();
             }
             return true;
@@ -281,28 +278,28 @@ public class Core {
         SetMonitoringModeRequest req = new SetMonitoringModeRequest();
         MonitoringMode mode = MonitoringMode.Reporting;
 
-        if(ex.getRequest().getItemsToCreate()[0].getMonitoringMode() == MonitoringMode.Reporting){
-           mode = MonitoringMode.Sampling;
+        if (ex.getRequest().getItemsToCreate()[0].getMonitoringMode() == MonitoringMode.Reporting) {
+            mode = MonitoringMode.Sampling;
         }
 
         req.setMonitoringMode(mode);
 
         ExtendedSubscription subscription = null;
-        for(int i = 0; i < subscriptions.size(); i++){
+        for (int i = 0; i < subscriptions.size(); i++) {
 
-            for(int j = 0; j < subscriptions.get(i).getMonitoredItems().size(); j++){
-                if(subscriptions.get(i).getMonitoredItems().get(j).getId() == ex.getId()){
+            for (int j = 0; j < subscriptions.get(i).getMonitoredItems().size(); j++) {
+                if (subscriptions.get(i).getMonitoredItems().get(j).getId() == ex.getId()) {
                     subscription = subscriptions.get(i);
                     break;
                 }
             }
 
-            if(subscription != null){
+            if (subscription != null) {
                 break;
             }
         }
 
-        if(subscription == null){
+        if (subscription == null) {
             return false;
         }
 
@@ -310,7 +307,7 @@ public class Core {
         req.setMonitoredItemIds(new UnsignedInteger[]{ex.getMonitoredItem().getMonitoredItemId()});
 
         SetMonitoringModeResponse res = sessionChannel.SetMonitoringMode(req);
-        if(res.getResults()[0].isGood()){
+        if (res.getResults()[0].isGood()) {
             ex.getRequest().getItemsToCreate()[0].setMonitoringMode(mode);
             return true;
         }
@@ -320,21 +317,21 @@ public class Core {
     public boolean removeMonitoredItem(ExtendedMonitoredItem ex) throws ServiceResultException {
         DeleteMonitoredItemsRequest req = new DeleteMonitoredItemsRequest();
         ExtendedSubscription subscription = null;
-        for(int i = 0; i < subscriptions.size(); i++){
+        for (int i = 0; i < subscriptions.size(); i++) {
 
-            for(int j = 0; j < subscriptions.get(i).getMonitoredItems().size(); j++){
-                if(subscriptions.get(i).getMonitoredItems().get(j).getId() == ex.getId()){
+            for (int j = 0; j < subscriptions.get(i).getMonitoredItems().size(); j++) {
+                if (subscriptions.get(i).getMonitoredItems().get(j).getId() == ex.getId()) {
                     subscription = subscriptions.get(i);
                     break;
                 }
             }
 
-            if(subscription != null){
+            if (subscription != null) {
                 break;
             }
         }
 
-        if(subscription == null){
+        if (subscription == null) {
             return false;
         }
 
@@ -342,7 +339,7 @@ public class Core {
         req.setMonitoredItemIds(new UnsignedInteger[]{ex.getMonitoredItem().getMonitoredItemId()});
 
         DeleteMonitoredItemsResponse res = sessionChannel.DeleteMonitoredItems(req);
-        if(res.getResults()[0].isGood()){
+        if (res.getResults()[0].isGood()) {
             removeCustomizedElementByMonitoredItem(ex);
             subscription.getMonitoredItems().remove(ex);
             return true;
@@ -350,11 +347,11 @@ public class Core {
         return false;
     }
 
-    private void removeCustomizedElementsBySubscription(ExtendedSubscription e){
-        for(int i = 0; i < e.getMonitoredItems().size(); i++){
+    private void removeCustomizedElementsBySubscription(ExtendedSubscription e) {
+        for (int i = 0; i < e.getMonitoredItems().size(); i++) {
 
-            for(int j = 0; j < customElements.size(); j++){
-                if(customElements.get(j).getMonitoredItem().getId() == e.getMonitoredItems().get(i).getId()){
+            for (int j = 0; j < customElements.size(); j++) {
+                if (customElements.get(j).getMonitoredItem().getId() == e.getMonitoredItems().get(i).getId()) {
                     customElements.remove(j);
                     break;
                 }
@@ -363,16 +360,16 @@ public class Core {
         }
     }
 
-    private void removeCustomizedElementByMonitoredItem(ExtendedMonitoredItem e){
-        for(int i = 0; i < customElements.size(); i++){
-            if(customElements.get(i).getMonitoredItem().getId() == e.getId()){
+    private void removeCustomizedElementByMonitoredItem(ExtendedMonitoredItem e) {
+        for (int i = 0; i < customElements.size(); i++) {
+            if (customElements.get(i).getMonitoredItem().getId() == e.getId()) {
                 customElements.remove(i);
                 break;
             }
         }
     }
 
-    public void addCustomizedElement(CustomizedElement e){
+    public void addCustomizedElement(CustomizedElement e) {
         this.customElements.add(e);
     }
 
@@ -384,29 +381,29 @@ public class Core {
 
     // PUBLISH =====================================================================================
 
-    public void updateSubscription(PublishResponse res){
+    public void updateSubscription(PublishResponse res) {
 
         int index = -1;
-        for(int i = 0; i < subscriptions.size(); i++){
-            if(subscriptions.get(i).getResponse().getSubscriptionId() == res.getSubscriptionId()){
+        for (int i = 0; i < subscriptions.size(); i++) {
+            if (subscriptions.get(i).getResponse().getSubscriptionId() == res.getSubscriptionId()) {
                 index = i;
                 break;
             }
         }
 
-        if(index < 0){
+        if (index < 0) {
             return;
         }
 
         subscriptions.get(index).setLastAck(res.getNotificationMessage().getSequenceNumber().intValue());
 
-        for (ExtensionObject obj: res.getNotificationMessage().getNotificationData()) {
+        for (ExtensionObject obj : res.getNotificationMessage().getNotificationData()) {
             try {
                 Object decoded = obj.decode(client.getEncoderContext());
-                if(decoded instanceof DataChangeNotification){
+                if (decoded instanceof DataChangeNotification) {
                     DataChangeNotification update = (DataChangeNotification) decoded;
 
-                    for(MonitoredItemNotification m: update.getMonitoredItems()){
+                    for (MonitoredItemNotification m : update.getMonitoredItems()) {
                         updateMonitoredItem(index, m);
                     }
                 }
@@ -416,17 +413,17 @@ public class Core {
         }
     }
 
-    public void updateMonitoredItem(int subid, MonitoredItemNotification notification){
+    public void updateMonitoredItem(int subid, MonitoredItemNotification notification) {
         for (ExtendedMonitoredItem m : subscriptions.get(subid).getMonitoredItems()) {
-            if(m.getId() == notification.getClientHandle().intValue()){
+            if (m.getId() == notification.getClientHandle().intValue()) {
                 m.addRead(notification);
                 break;
             }
         }
     }
 
-    public void startPublisher(){
-        if(publisher == null){
+    public void startPublisher() {
+        if (publisher == null) {
             publisher = new Publisher();
         }
 
@@ -434,13 +431,12 @@ public class Core {
         publisherThread.start();
     }
 
-    public void stopPublisher(){
+    public void stopPublisher() {
         publisher.setEnabled(false);
         publisher = null;
     }
 
     // =============================================================================================
-
 
 
 }
