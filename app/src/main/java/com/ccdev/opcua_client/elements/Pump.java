@@ -4,28 +4,26 @@ import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
 
 public class Pump extends CustomizedElement {
 
-    double maxRPM;
-    double minRPM;
+    double maxValue;
+    double minValue;
 
     public Pump(ExtendedMonitoredItem monitoredItem, String name) {
         super(monitoredItem, name);
-        this.maxRPM = 10000;
-        this.minRPM = 0;
     }
 
-    public double getMaxRPM() {
-        return maxRPM;
+    public double getMaxValue() {
+        return maxValue;
     }
 
-    public void setMaxRPM(double maxRPM) {
-        this.maxRPM = maxRPM;
+    public void setMaxValue(double maxValue) {
+        this.maxValue = maxValue;
     }
 
-    public double getMinRPM() {
-        return minRPM;
+    public double getMinValue() {
+        return minValue;
     }
 
-    public void setMinRPM(double minRPM) {
-        this.minRPM = minRPM;
+    public void setMinValue(double minValue) {
+        this.minValue = minValue;
     }
 }

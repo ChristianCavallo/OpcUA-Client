@@ -43,6 +43,7 @@ public class HomeFragment extends Fragment implements CoreInterface {
     LinearLayout chartLayout;
     LineChart chart;
     Button closeChartButton;
+    TextView chartTitleText;
 
     LineDataSet dataSet;
     LineData data;
@@ -56,9 +57,9 @@ public class HomeFragment extends Fragment implements CoreInterface {
 
         mainHandler = new Handler(Looper.getMainLooper());
 
-        elementAlertView = (TextView) root.findViewById(R.id.elementsAlertTextView);
-
-        elementsListView = (RecyclerView) root.findViewById(R.id.elementsRecyclerView);
+        elementAlertView = root.findViewById(R.id.elementsAlertTextView);
+        chartTitleText = root.findViewById(R.id.chartTitleTextView);
+        elementsListView = root.findViewById(R.id.elementsRecyclerView);
         elementAdapter = new CustomizedElementAdapter(Core.getInstance().getCustomElements(), this);
         elementsListView.setLayoutManager(new LinearLayoutManager(getContext()));
         elementsListView.setAdapter(elementAdapter);
@@ -72,9 +73,9 @@ public class HomeFragment extends Fragment implements CoreInterface {
         }
 
 
-        this.chartLayout = (LinearLayout) root.findViewById(R.id.chartLinearLayout);
+        this.chartLayout = root.findViewById(R.id.chartLinearLayout);
         this.chartLayout.setVisibility(View.GONE);
-        this.chart = (LineChart) root.findViewById(R.id.elementLinechart);
+        this.chart = root.findViewById(R.id.elementLinechart);
 
         chart.setTouchEnabled(true);
         chart.setDrawGridBackground(false);
@@ -86,7 +87,7 @@ public class HomeFragment extends Fragment implements CoreInterface {
         chart.setVisibleXRange(5, 10);
 
 
-        this.closeChartButton = (Button) root.findViewById(R.id.chartCloseButton);
+        this.closeChartButton = root.findViewById(R.id.chartCloseButton);
 
         this.closeChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +107,7 @@ public class HomeFragment extends Fragment implements CoreInterface {
         elementsListView.setVisibility(View.GONE);
         chartLayout.setVisibility(View.VISIBLE);
         this.customElement = element;
-
+        this.chartTitleText.setText(element.getName());
         //Initialize data
         chartIndex = 0;
         List<Entry> entries = new ArrayList<>();

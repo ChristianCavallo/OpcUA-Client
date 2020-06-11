@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import com.ccdev.opcua_client.elements.Tank;
 import com.ccdev.opcua_client.elements.Valve;
 import com.ccdev.opcua_client.ui.home.HomeFragment;
 import com.ccdev.opcua_client.wrappers.ExtendedMonitoredItem;
+import com.github.anastr.speedviewlib.SpeedView;
 import com.lukelorusso.verticalseekbar.VerticalSeekBar;
 
 import org.opcfoundation.ua.common.ServiceResultException;
@@ -122,18 +124,39 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
                 h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
 
-                String value = t.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                h.rangeText.setText("[" + t.getMinValue() + ", " + t.getMaxValue() + "]");
+
+                h.speedometer.setMinSpeed(new Float(t.getMinValue()));
+                h.speedometer.setMaxSpeed(new Float(t.getMaxValue()));
+
+                h.speedometer.setUnit(t.getUnit());
+
+                switch (t.getVisualization()) {
+                    case PROGRESS_BAR:
+                        h.progressBarLayout.setVisibility(View.VISIBLE);
+                        h.speedometer.setVisibility(View.GONE);
+                        break;
+                    case INDICATOR:
+                        h.progressBarLayout.setVisibility(View.GONE);
+                        h.speedometer.setVisibility(View.VISIBLE);
+                        break;
+                    case BOTH:
+                        h.progressBarLayout.setVisibility(View.VISIBLE);
+                        h.speedometer.setVisibility(View.VISIBLE);
+                        break;
+                }
+
                 try {
-                    double input = new Double(value);
-                    double percentage = ((input - t.getMinValue()) * 100) / (t.getMaxValue() - t.getMinValue());
+                    String s = t.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                    double value = new Double(s);
+                    value = Math.round(value * 100) / 100;
+                    h.valueText.setText(value + " " + t.getUnit());
+                    h.speedometer.speedTo(new Float(value));
+                    double percentage = ((value - t.getMinValue()) * 100) / (t.getMaxValue() - t.getMinValue());
                     percentage = Math.round(percentage * 100.0) / 100.0;
-                    h.levelText.setText(percentage + "%");
-
                     h.levelBar.setProgress((int) percentage);
-
                 } catch (Exception e) {
-                    h.levelText.setText("Wrong data type...");
-                    h.levelBar.setProgress(0);
+                    h.valueText.setText("Wrong data type...");
                 }
 
                 break;
@@ -182,7 +205,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 try {
                     double input = new Double(value);
-                    double percentage = ((input - p.getMinRPM()) * 100) / (p.getMaxRPM() - p.getMinRPM());
+                    double percentage = ((input - p.getMinValue()) * 100) / (p.getMaxValue() - p.getMinValue());
                     percentage = Math.round(percentage * 100.0) / 100.0;
 
                     h.ValueRpmView.setText(value + " RPM");
@@ -395,23 +418,31 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         TextView NamespaceView;
 
         TextView nameText;
-        TextView levelText;
+        TextView valueText;
+        TextView rangeText;
 
         VerticalSeekBar levelBar;
+        FrameLayout progressBarLayout;
+        SpeedView speedometer;
 
         public TankViewHolder(@NonNull View itemView) {
             super(itemView);
-            monitorView = (ImageView) itemView.findViewById(R.id.tankMonitorImageView);
-            statusView = (ImageView) itemView.findViewById(R.id.tankStatusImageView);
-            removeView = (ImageView) itemView.findViewById(R.id.tankRemoveImageView);
+            monitorView = itemView.findViewById(R.id.tankMonitorImageView);
+            statusView = itemView.findViewById(R.id.tankStatusImageView);
+            removeView = itemView.findViewById(R.id.tankRemoveImageView);
 
-            nameText = (TextView) itemView.findViewById(R.id.tankNameTextView);
-            levelText = (TextView) itemView.findViewById(R.id.tankLevelTextView);
-            levelBar = (VerticalSeekBar) itemView.findViewById(R.id.tankLevelBar);
+            nameText = itemView.findViewById(R.id.tankNameTextView);
+            valueText = itemView.findViewById(R.id.tankValueTextView);
+            rangeText = itemView.findViewById(R.id.tankRangeTextView);
 
-            MonitoredItemView = (TextView) itemView.findViewById(R.id.tankMonitoredItemTextView);
-            NodeIndexView = (TextView) itemView.findViewById(R.id.tankNodeIndexTextView);
-            NamespaceView = (TextView) itemView.findViewById(R.id.tankNamespaceTextView);
+            levelBar = itemView.findViewById(R.id.tankLevelBar);
+
+            MonitoredItemView = itemView.findViewById(R.id.tankMonitoredItemTextView);
+            NodeIndexView = itemView.findViewById(R.id.tankNodeIndexTextView);
+            NamespaceView = itemView.findViewById(R.id.tankNamespaceTextView);
+
+            progressBarLayout = itemView.findViewById(R.id.tankProgressBarLayout);
+            speedometer = itemView.findViewById(R.id.tankSpeedView);
         }
     }
 
@@ -431,16 +462,16 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         public PumpViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            monitorView = (ImageView) itemView.findViewById(R.id.pumpMonitorImageView);
-            statusView = (ImageView) itemView.findViewById(R.id.pumpStatusImageView);
-            removeView = (ImageView) itemView.findViewById(R.id.pumpRemoveImageView);
+            monitorView = itemView.findViewById(R.id.pumpMonitorImageView);
+            statusView = itemView.findViewById(R.id.pumpStatusImageView);
+            removeView = itemView.findViewById(R.id.pumpRemoveImageView);
 
-            nameText = (TextView) itemView.findViewById(R.id.pumpNameTextView);
-            MonitoredItemView = (TextView) itemView.findViewById(R.id.pumpMonitoredItemTextView);
-            NodeIndexView = (TextView) itemView.findViewById(R.id.pumpNodeIndexTextView);
-            NamespaceView = (TextView) itemView.findViewById(R.id.pumpNamespaceTextView);
-            ValueRpmView = (TextView) itemView.findViewById(R.id.pumpValueRpmTextView);
-            ProgressBarView = (ProgressBar) itemView.findViewById(R.id.pumpProgressBarView);
+            nameText = itemView.findViewById(R.id.pumpNameTextView);
+            MonitoredItemView = itemView.findViewById(R.id.pumpMonitoredItemTextView);
+            NodeIndexView = itemView.findViewById(R.id.pumpNodeIndexTextView);
+            NamespaceView = itemView.findViewById(R.id.pumpNamespaceTextView);
+            ValueRpmView = itemView.findViewById(R.id.pumpValueRpmTextView);
+            ProgressBarView = itemView.findViewById(R.id.pumpProgressBarView);
         }
     }
 
@@ -461,17 +492,17 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         public ValveViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            monitorView = (ImageView) itemView.findViewById(R.id.valveMonitorImageView);
-            statusView = (ImageView) itemView.findViewById(R.id.valveStatusImageView);
-            removeView = (ImageView) itemView.findViewById(R.id.valveRemoveImageView);
+            monitorView = itemView.findViewById(R.id.valveMonitorImageView);
+            statusView = itemView.findViewById(R.id.valveStatusImageView);
+            removeView = itemView.findViewById(R.id.valveRemoveImageView);
 
-            nameText = (TextView) itemView.findViewById(R.id.valveNameTextView);
-            MonitoredItemView = (TextView) itemView.findViewById(R.id.valveMonitoredItemTextView);
-            NodeIndexView = (TextView) itemView.findViewById(R.id.valveNodeIndexTextView);
-            NamespaceView = (TextView) itemView.findViewById(R.id.valveNamespaceTextView);
-            StateView = (TextView) itemView.findViewById(R.id.valveStateTextView);
+            nameText = itemView.findViewById(R.id.valveNameTextView);
+            MonitoredItemView = itemView.findViewById(R.id.valveMonitoredItemTextView);
+            NodeIndexView = itemView.findViewById(R.id.valveNodeIndexTextView);
+            NamespaceView = itemView.findViewById(R.id.valveNamespaceTextView);
+            StateView = itemView.findViewById(R.id.valveStateTextView);
 
-            StateImageView = (ImageView) itemView.findViewById(R.id.valveStateImageView);
+            StateImageView = itemView.findViewById(R.id.valveStateImageView);
         }
     }
 
@@ -492,17 +523,17 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         public SensorViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            monitorView = (ImageView) itemView.findViewById(R.id.sensorMonitorImageView);
-            statusView = (ImageView) itemView.findViewById(R.id.sensorStatusImageView);
-            removeView = (ImageView) itemView.findViewById(R.id.sensorRemoveImageView);
+            monitorView = itemView.findViewById(R.id.sensorMonitorImageView);
+            statusView = itemView.findViewById(R.id.sensorStatusImageView);
+            removeView = itemView.findViewById(R.id.sensorRemoveImageView);
 
-            nameText = (TextView) itemView.findViewById(R.id.sensorNameTextView);
-            MonitoredItemView = (TextView) itemView.findViewById(R.id.sensorMonitoredItemTextView);
-            NodeIndexView = (TextView) itemView.findViewById(R.id.sensorNodeIndexTextView);
-            NamespaceView = (TextView) itemView.findViewById(R.id.sensorNamespaceTextView);
-            ValueView = (TextView) itemView.findViewById(R.id.sensorValueTextView);
-            ValueBarView = (TextView) itemView.findViewById(R.id.sensorValueBarTextView);
-            ProgressBarView = (VerticalSeekBar) itemView.findViewById(R.id.sensorProgressBarTextView);
+            nameText = itemView.findViewById(R.id.sensorNameTextView);
+            MonitoredItemView = itemView.findViewById(R.id.sensorMonitoredItemTextView);
+            NodeIndexView = itemView.findViewById(R.id.sensorNodeIndexTextView);
+            NamespaceView = itemView.findViewById(R.id.sensorNamespaceTextView);
+            ValueView = itemView.findViewById(R.id.sensorValueTextView);
+            ValueBarView = itemView.findViewById(R.id.sensorValueBarTextView);
+            ProgressBarView = itemView.findViewById(R.id.sensorProgressBarTextView);
 
 
         }

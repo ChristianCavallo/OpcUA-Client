@@ -13,6 +13,7 @@ public class Tank extends CustomizedElement {
         this.maxValue = 100;
     }
 
+
     public double getMinValue() {
         return minValue;
     }

@@ -64,7 +64,6 @@
                                 android:id="@+id/tankMonitoredItemTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:singleLine="true"
                                 android:text="Int32Vaule" />
                         </LinearLayout>
@@ -112,6 +111,25 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="10dp"
+                                android:text="Range: "
+                                android:textColor="#FFFFFF" />
+
+                            <TextView
+                                android:id="@+id/tankRangeTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="[-50, 50]" />
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
@@ -120,14 +138,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Level: "
+                                android:text="Value: "
                                 android:textColor="#FFFFFF" />
 
                             <TextView
-                                android:id="@+id/tankLevelTextView"
+                                android:id="@+id/tankValueTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:singleLine="true"
                                 android:text="100" />
 
@@ -135,7 +152,30 @@
 
                     </LinearLayout>
 
+                    <com.github.anastr.speedviewlib.SpeedView
+                        android:id="@+id/tankSpeedView"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_marginRight="10dp"
+                        app:sv_indicator="NormalIndicator"
+                        app:sv_indicatorWidth="5dp"
+                        app:sv_maxSpeed="250"
+                        app:sv_minSpeed="-250"
+                        app:sv_speedTextColor="#FFFFFF"
+                        app:sv_speedTextPadding="0dp"
+                        app:sv_speedTextPosition="BOTTOM_CENTER"
+                        app:sv_speedTextSize="10dp"
+                        app:sv_speedometerMode="NORMAL"
+                        app:sv_speedometerWidth="8dp"
+                        app:sv_textColor="#FFFFFF"
+                        app:sv_textSize="10sp"
+                        app:sv_tickTextFormat="INTEGER"
+                        app:sv_unit="Pascal"
+                        app:sv_unitTextColor="#FFFFFF"
+                        app:sv_unitTextSize="10sp" />
+
                     <FrameLayout
+                        android:id="@+id/tankProgressBarLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent">
 

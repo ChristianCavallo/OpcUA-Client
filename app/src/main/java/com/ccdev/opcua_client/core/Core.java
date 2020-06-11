@@ -12,9 +12,18 @@ import com.ccdev.opcua_client.wrappers.ExtendedSubscription;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.opcfoundation.ua.application.Client;
 import org.opcfoundation.ua.application.SessionChannel;
+import org.opcfoundation.ua.builtintypes.DataValue;
+import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
 import org.opcfoundation.ua.builtintypes.ExtensionObject;
+import org.opcfoundation.ua.builtintypes.NodeId;
 import org.opcfoundation.ua.builtintypes.UnsignedInteger;
 import org.opcfoundation.ua.common.ServiceResultException;
+import org.opcfoundation.ua.core.Attributes;
+import org.opcfoundation.ua.core.BrowseDescription;
+import org.opcfoundation.ua.core.BrowseDirection;
+import org.opcfoundation.ua.core.BrowseRequest;
+import org.opcfoundation.ua.core.BrowseResponse;
+import org.opcfoundation.ua.core.BrowseResultMask;
 import org.opcfoundation.ua.core.CreateSubscriptionResponse;
 import org.opcfoundation.ua.core.DataChangeNotification;
 import org.opcfoundation.ua.core.DeleteMonitoredItemsRequest;
@@ -24,11 +33,17 @@ import org.opcfoundation.ua.core.DeleteSubscriptionsResponse;
 import org.opcfoundation.ua.core.EndpointDescription;
 import org.opcfoundation.ua.core.MonitoredItemNotification;
 import org.opcfoundation.ua.core.MonitoringMode;
+import org.opcfoundation.ua.core.NodeClass;
 import org.opcfoundation.ua.core.PublishResponse;
+import org.opcfoundation.ua.core.ReadRequest;
+import org.opcfoundation.ua.core.ReadResponse;
+import org.opcfoundation.ua.core.ReadValueId;
+import org.opcfoundation.ua.core.ReferenceDescription;
 import org.opcfoundation.ua.core.SetMonitoringModeRequest;
 import org.opcfoundation.ua.core.SetMonitoringModeResponse;
 import org.opcfoundation.ua.core.SetPublishingModeRequest;
 import org.opcfoundation.ua.core.SetPublishingModeResponse;
+import org.opcfoundation.ua.core.TimestampsToReturn;
 import org.opcfoundation.ua.encoding.DecodingException;
 import org.opcfoundation.ua.transport.security.Cert;
 import org.opcfoundation.ua.transport.security.CertificateValidator;
@@ -224,6 +239,32 @@ public class Core {
     }
 
     //==============================================================================================
+
+
+    // BROWSE ======================================================================================
+
+    public ReferenceDescription[] Browse(ReferenceDescription r) throws ServiceResultException {
+        BrowseRequest browseRequest = new BrowseRequest();
+
+        ExpandedNodeId en = r.getNodeId();
+        NodeId n = NodeId.get(en.getIdType(), en.getNamespaceIndex(), en.getValue());
+
+        BrowseDescription browse = new BrowseDescription();
+        browse.setNodeId(n);
+        browse.setBrowseDirection(BrowseDirection.Forward);
+        browse.setIncludeSubtypes(true);
+        browse.setNodeClassMask(NodeClass.Variable, NodeClass.Object);
+        browse.setResultMask(BrowseResultMask.All);
+
+        browseRequest.setNodesToBrowse(new BrowseDescription[]{browse});
+
+        BrowseResponse res = sessionChannel.Browse(browseRequest);
+
+        return res.getResults()[0].getReferences();
+    }
+
+
+    // =============================================================================================
 
 
     // SUBSCRIPTIONS ===============================================================================
@@ -439,4 +480,22 @@ public class Core {
     // =============================================================================================
 
 
+    // READ ========================================================================================
+
+    public DataValue Read(ReferenceDescription r, Double maxAge, TimestampsToReturn timestamps) throws ServiceResultException {
+        ReadRequest readRequest = new ReadRequest();
+        readRequest.setMaxAge(maxAge);
+        readRequest.setTimestampsToReturn(timestamps);
+        ReadValueId rv = new ReadValueId();
+        rv.setAttributeId(Attributes.Value);
+        ExpandedNodeId expNode = r.getNodeId();
+        rv.setNodeId(NodeId.get(expNode.getIdType(), expNode.getNamespaceIndex(), expNode.getValue()));
+        readRequest.setNodesToRead(new ReadValueId[]{rv});
+
+        ReadResponse readResponse = sessionChannel.Read(readRequest);
+
+        return readResponse.getResults()[0];
+    }
+
+    // =============================================================================================
 }

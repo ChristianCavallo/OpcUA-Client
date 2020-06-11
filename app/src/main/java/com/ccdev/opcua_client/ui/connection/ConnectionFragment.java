@@ -33,6 +33,13 @@ import org.opcfoundation.ua.core.EndpointDescription;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.opcfoundation.ua.utils.EndpointUtil.selectByProtocol;
 
@@ -59,6 +66,11 @@ public class ConnectionFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_connection, container, false);
 
         this.mainHandler = new Handler(getContext().getMainLooper());
+
+        BottomNavigationView m = getActivity().findViewById(R.id.nav_view);
+        m.getMenu().findItem(R.id.navigation_home).setEnabled(false);
+        m.getMenu().findItem(R.id.navigation_browser).setEnabled(false);
+        m.getMenu().findItem(R.id.navigation_subscriptions).setEnabled(false);
 
         this.serverAddress = root.findViewById(R.id.text_server_address);
         this.discoveryButton = root.findViewById(R.id.discovery_button);
@@ -127,10 +139,29 @@ public class ConnectionFragment extends Fragment {
         dialog = ProgressDialog.show(getContext(), "",
                 "Discovering...", true);
 
+
         new Thread(new Runnable() {
             @Override
             public void run() {
-                DiscoveryEndpoints();
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                Future<String> future = executor.submit(new Callable() {
+
+                    public String call() throws Exception {
+                        DiscoveryEndpoints();
+                        return null;
+                    }
+                });
+                try {
+                    future.get(10, TimeUnit.SECONDS);
+                } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "Discover timeout.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                executor.shutdownNow();
 
                 mainHandler.post(new Runnable() {
                     @Override
@@ -158,12 +189,7 @@ public class ConnectionFragment extends Fragment {
         } catch (ServiceResultException e) {
             e.printStackTrace();
 
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getContext(), "Discover timeout.", Toast.LENGTH_LONG).show();
-                }
-            });
+
         }
     }
 
@@ -210,10 +236,10 @@ public class ConnectionFragment extends Fragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_credentials, null);
 
-        RadioButton authCertificateRadio = (RadioButton) dialogView.findViewById(R.id.authCertificateRadioButton);
-        final RadioButton authUserPasswordRadio = (RadioButton) dialogView.findViewById(R.id.authUserPassRadioButton);
-        final TextView authUsernameText = (TextView) dialogView.findViewById(R.id.authUsernameTextView);
-        final TextView authPasswordText = (TextView) dialogView.findViewById(R.id.authPasswordTextView);
+        RadioButton authCertificateRadio = dialogView.findViewById(R.id.authCertificateRadioButton);
+        final RadioButton authUserPasswordRadio = dialogView.findViewById(R.id.authUserPassRadioButton);
+        final TextView authUsernameText = dialogView.findViewById(R.id.authUsernameTextView);
+        final TextView authPasswordText = dialogView.findViewById(R.id.authPasswordTextView);
 
         builder.setView(dialogView)
                 // Add action buttons
@@ -268,8 +294,12 @@ public class ConnectionFragment extends Fragment {
         NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
         navController.popBackStack();
         navController.navigate(R.id.navigation_home);
-        BottomNavigationView m = (BottomNavigationView) getActivity().findViewById(R.id.nav_view);
+        BottomNavigationView m = getActivity().findViewById(R.id.nav_view);
+        m.getMenu().findItem(R.id.navigation_home).setEnabled(true);
+        m.getMenu().findItem(R.id.navigation_browser).setEnabled(true);
+        m.getMenu().findItem(R.id.navigation_subscriptions).setEnabled(true);
         m.getMenu().findItem(R.id.navigation_connection).setEnabled(false);
+
     }
 
 }

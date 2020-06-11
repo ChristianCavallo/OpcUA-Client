@@ -15,8 +15,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -51,24 +53,19 @@ import org.opcfoundation.ua.builtintypes.UnsignedShort;
 import org.opcfoundation.ua.builtintypes.Variant;
 import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.Attributes;
-import org.opcfoundation.ua.core.BrowseDescription;
-import org.opcfoundation.ua.core.BrowseDirection;
-import org.opcfoundation.ua.core.BrowseRequest;
-import org.opcfoundation.ua.core.BrowseResponse;
-import org.opcfoundation.ua.core.BrowseResultMask;
 import org.opcfoundation.ua.core.CreateMonitoredItemsRequest;
 import org.opcfoundation.ua.core.CreateMonitoredItemsResponse;
 import org.opcfoundation.ua.core.CreateSubscriptionRequest;
 import org.opcfoundation.ua.core.DataChangeFilter;
 import org.opcfoundation.ua.core.DataChangeTrigger;
 import org.opcfoundation.ua.core.DeadbandType;
+import org.opcfoundation.ua.core.EUInformation;
 import org.opcfoundation.ua.core.Identifiers;
 import org.opcfoundation.ua.core.MonitoredItemCreateRequest;
 import org.opcfoundation.ua.core.MonitoringMode;
 import org.opcfoundation.ua.core.MonitoringParameters;
 import org.opcfoundation.ua.core.NodeClass;
-import org.opcfoundation.ua.core.ReadRequest;
-import org.opcfoundation.ua.core.ReadResponse;
+import org.opcfoundation.ua.core.Range;
 import org.opcfoundation.ua.core.ReadValueId;
 import org.opcfoundation.ua.core.ReferenceDescription;
 import org.opcfoundation.ua.core.TimestampsToReturn;
@@ -103,10 +100,10 @@ public class BrowserFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_browser, container, false);
-        navPathtView = (TextView) root.findViewById(R.id.navPathtTexView);
+        navPathtView = root.findViewById(R.id.navPathtTexView);
         navReferences = new ArrayList<>();
         this.mainHandler = new Handler(getContext().getMainLooper());
-        backButton = (ImageView) root.findViewById(R.id.backBrowserButton);
+        backButton = root.findViewById(R.id.backBrowserButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,12 +112,12 @@ public class BrowserFragment extends Fragment {
                 }
             }
         });
-        nodesList = (ListView) root.findViewById(R.id.nodesList);
+        nodesList = root.findViewById(R.id.nodesList);
         nodesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (references[position].getNodeClass().getValue() != 1) {
-                    return;
+                    //return;
                 }
                 Browse(references[position]);
             }
@@ -175,56 +172,28 @@ public class BrowserFragment extends Fragment {
             }).start();
             return;
         }
-        BrowseRequest req = new BrowseRequest();
-
-        ExpandedNodeId en = r.getNodeId();
-        NodeId n = NodeId.get(en.getIdType(), en.getNamespaceIndex(), en.getValue());
-
-        BrowseDescription browse = new BrowseDescription();
-        browse.setNodeId(n);
-        browse.setBrowseDirection(BrowseDirection.Forward);
-        browse.setIncludeSubtypes(true);
-        browse.setNodeClassMask(NodeClass.Object, NodeClass.Variable);
-        browse.setResultMask(BrowseResultMask.All);
-
-        req.setNodesToBrowse(new BrowseDescription[]{browse});
-
-        BrowseResponse res;
 
         try {
-            res = Core.getInstance().getSessionChannel().Browse(req);
-        } catch (ServiceResultException ex) {
-            ex.printStackTrace();
-            final ServiceResultException e = ex;
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+
+            references = Core.getInstance().Browse(r);
+
+            //NAV PATH UPDATE
+            boolean found = false;
+            for (int i = 0; i < navReferences.size(); i++) {
+                ExpandedNodeId e = navReferences.get(i).getNodeId();
+                if (r.getNodeId().getNamespaceIndex() == e.getNamespaceIndex() &&
+                        r.getNodeId().getValue().toString().equals(e.getValue().toString())) {
+                    found = true;
+                    break;
                 }
-            });
-
-            return;
-        }
-
-        boolean found = false;
-        for (int i = 0; i < navReferences.size(); i++) {
-            ExpandedNodeId e = navReferences.get(i).getNodeId();
-            if (r.getNodeId().getNamespaceIndex() == e.getNamespaceIndex() &&
-                    r.getNodeId().getValue().toString().equals(e.getValue().toString())) {
-                found = true;
-                break;
             }
-        }
 
-        if (found) {
-            navReferences.remove(navReferences.size() - 1);
-        } else {
-            navReferences.add(r);
-        }
+            if (found) {
+                navReferences.remove(navReferences.size() - 1);
+            } else {
+                navReferences.add(r);
+            }
 
-        if (res.getResults().length > 0) {
-
-            references = res.getResults()[0].getReferences();
             ArrayList<ReferenceDescription> rl = new ArrayList<>();
             for (int i = 0; i < references.length; i++) {
                 found = false;
@@ -250,14 +219,24 @@ public class BrowserFragment extends Fragment {
                     UpdatePath();
                 }
             });
+
+        } catch (final ServiceResultException e) {
+
+            e.printStackTrace();
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                }
+            });
+
         }
+
     }
 
     private void UpdateList() {
-
         NodeAdapter na = new NodeAdapter(getContext(), references);
         this.nodesList.setAdapter(na);
-
     }
 
     private void UpdatePath() {
@@ -272,6 +251,44 @@ public class BrowserFragment extends Fragment {
 
     }
 
+    private Range searchEuRange(ReferenceDescription r) {
+        try {
+            ReferenceDescription[] browseResult = Core.getInstance().Browse(r);
+
+            for (ReferenceDescription rd : browseResult) {
+                if (rd.getDisplayName().getText().equals("EURange") && rd.getNodeClass() == NodeClass.Variable) {
+
+                    DataValue v = Core.getInstance().Read(rd, new Double(0), TimestampsToReturn.Neither);
+
+                    Range range = v.getValue().asClass(Range.class, null);
+                    return range;
+                }
+            }
+        } catch (ServiceResultException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private EUInformation searchMisurementUnit(ReferenceDescription r) {
+        try {
+            ReferenceDescription[] browseResult = Core.getInstance().Browse(r);
+
+            for (ReferenceDescription rd : browseResult) {
+                if (rd.getDisplayName().getText().equals("EngineeringUnits") && rd.getNodeClass() == NodeClass.Variable) {
+
+                    DataValue v = Core.getInstance().Read(rd, new Double(0), TimestampsToReturn.Neither);
+
+                    EUInformation info = v.getValue().asClass(EUInformation.class, null);
+                    return info;
+                }
+            }
+        } catch (ServiceResultException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     //SUBSCRIPTION =================================================================================
     ExtendedSubscription selectedSubscription;
@@ -282,8 +299,8 @@ public class BrowserFragment extends Fragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_subscription_choose, null);
 
-        ListView subscriptionsList = (ListView) dialogView.findViewById(R.id.subscChooseListView);
-        TextView titleView = (TextView) dialogView.findViewById(R.id.subscChooseTitleTextView);
+        ListView subscriptionsList = dialogView.findViewById(R.id.subscChooseListView);
+        TextView titleView = dialogView.findViewById(R.id.subscChooseTitleTextView);
 
         builder.setView(dialogView)
                 // Add action buttons
@@ -325,20 +342,20 @@ public class BrowserFragment extends Fragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_subscription, null);
 
-        final EditText displayNameText = (EditText) dialogView.findViewById(R.id.subscDisplayNameText);
-        final EditText publishIntervalText = (EditText) dialogView.findViewById(R.id.subscPublishIntervalText);
-        final EditText keepAliveCountText = (EditText) dialogView.findViewById(R.id.subscKeepAliveCountText);
-        final EditText lifetimeCountText = (EditText) dialogView.findViewById(R.id.subscLifetimeCountText);
-        final EditText maxNotificationsPerPublishText = (EditText) dialogView.findViewById(R.id.subscMaxNotPerPublishText);
-        final EditText priorityText = (EditText) dialogView.findViewById(R.id.subscPriorityText);
-        final Switch publishEnabledSwitch = (Switch) dialogView.findViewById(R.id.subscPublishEnabledSwitch);
+        final EditText displayNameText = dialogView.findViewById(R.id.subscDisplayNameText);
+        final EditText publishIntervalText = dialogView.findViewById(R.id.subscPublishIntervalText);
+        final EditText keepAliveCountText = dialogView.findViewById(R.id.subscKeepAliveCountText);
+        final EditText lifetimeCountText = dialogView.findViewById(R.id.subscLifetimeCountText);
+        final EditText maxNotificationsPerPublishText = dialogView.findViewById(R.id.subscMaxNotPerPublishText);
+        final EditText priorityText = dialogView.findViewById(R.id.subscPriorityText);
+        final Switch publishEnabledSwitch = dialogView.findViewById(R.id.subscPublishEnabledSwitch);
 
 
         builder.setView(dialogView)
                 // Add action buttons
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(DialogInterface d, int id) {
                         CreateSubscriptionRequest req = new CreateSubscriptionRequest();
 
                         if (publishIntervalText.getText().toString().isEmpty()) {
@@ -374,6 +391,7 @@ public class BrowserFragment extends Fragment {
                         }
                         ExtendedSubscription es = new ExtendedSubscription(displayNameText.getText().toString().trim(), req);
 
+                        dialog = ProgressDialog.show(getContext(), "", "Creating subscription...", true);
 
                         CreateSubscription(es);
                     }
@@ -394,38 +412,27 @@ public class BrowserFragment extends Fragment {
             return;
         }
 
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                dialog = ProgressDialog.show(getContext(), "", "Creating subscription...", true);
-            }
-        });
-
-        ServiceResultException exception = null;
         try {
             Core.getInstance().createSubscription(es);
-        } catch (ServiceResultException ex) {
-            ex.printStackTrace();
-            exception = ex;
-            return;
-        }
-
-        final ServiceResultException finalException = exception;
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-
-                dialog.dismiss();
-
-                if (finalException != null) {
-                    Toast.makeText(getContext(), "Error: " + finalException.getStatusCode().getDescription() + ". Code: " + finalException.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
-                } else {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
                     Toast.makeText(getContext(), "Subscription created.", Toast.LENGTH_LONG).show();
                     selectedSubscription = es;
                     ShowCreateMonitoredItemDialog();
                 }
-            }
-        });
+            });
+        } catch (final ServiceResultException ex) {
+            ex.printStackTrace();
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
+                    Toast.makeText(getContext(), "Error: " + ex.getStatusCode().getDescription() + ". Code: " + ex.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     public void ShowCreateMonitoredItemDialog() {
@@ -433,13 +440,13 @@ public class BrowserFragment extends Fragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_monitoreditem, null);
 
-        final EditText samplingText = (EditText) dialogView.findViewById(R.id.monSamplingText);
-        final EditText queueText = (EditText) dialogView.findViewById(R.id.monQueueText);
-        final EditText deadbandText = (EditText) dialogView.findViewById(R.id.monDeadbandText);
-        final Spinner triggerSpinner = (Spinner) dialogView.findViewById(R.id.monTriggerSpinner);
-        final Spinner typeSpinner = (Spinner) dialogView.findViewById(R.id.monTypeSpinner);
-        final RadioButton discardOldestRadio = (RadioButton) dialogView.findViewById(R.id.monDiscardOldestRadioButton);
-        final Spinner timestampSpinner = (Spinner) dialogView.findViewById(R.id.monTimestampSpinner);
+        final EditText samplingText = dialogView.findViewById(R.id.monSamplingText);
+        final EditText queueText = dialogView.findViewById(R.id.monQueueText);
+        final EditText deadbandText = dialogView.findViewById(R.id.monDeadbandText);
+        final Spinner triggerSpinner = dialogView.findViewById(R.id.monTriggerSpinner);
+        final Spinner typeSpinner = dialogView.findViewById(R.id.monTypeSpinner);
+        final RadioButton discardOldestRadio = dialogView.findViewById(R.id.monDiscardOldestRadioButton);
+        final Spinner timestampSpinner = dialogView.findViewById(R.id.monTimestampSpinner);
 
         String[] timestamps = new String[]{"Source", "Server", "Both", "Neither"};
         ArrayAdapter<String> timestampsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, timestamps);
@@ -460,7 +467,7 @@ public class BrowserFragment extends Fragment {
                 // Add action buttons
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(DialogInterface d, int id) {
                         CreateMonitoredItemsRequest req = new CreateMonitoredItemsRequest();
                         MonitoredItemCreateRequest m = new MonitoredItemCreateRequest();
                         MonitoringParameters mp = new MonitoringParameters();
@@ -542,15 +549,13 @@ public class BrowserFragment extends Fragment {
                         req.setItemsToCreate(new MonitoredItemCreateRequest[]{m});
                         req.setSubscriptionId(selectedSubscription.getResponse().getSubscriptionId());
 
-
+                        dialog = ProgressDialog.show(getContext(), "", "Creating monitored item...", true);
                         CreateMonitoredItem(req);
                     }
                 })
                 .setNegativeButton("Abort", null);
 
         builder.show();
-
-
     }
 
     private void CreateMonitoredItem(final CreateMonitoredItemsRequest req) {
@@ -563,44 +568,36 @@ public class BrowserFragment extends Fragment {
             }).start();
             return;
         }
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                dialog = ProgressDialog.show(getContext(), "", "Creating monitored item...", true);
-            }
-        });
-        CreateMonitoredItemsResponse res = null;
-        ServiceResultException exception = null;
+
         try {
-            res = Core.getInstance().getSessionChannel().CreateMonitoredItems(req);
-        } catch (ServiceResultException ex) {
-            ex.printStackTrace();
-            exception = ex;
-        }
+            CreateMonitoredItemsResponse res = Core.getInstance().getSessionChannel().CreateMonitoredItems(req);
 
-        final ServiceResultException e = exception;
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                dialog.dismiss();
-                if (e != null) {
-                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getContext(), "Monitored Item created correctly.", Toast.LENGTH_LONG).show();
-                    ShowChooseCustomizedElementDialog();
-                }
-            }
-        });
-
-        if (exception == null) {
             ExtendedMonitoredItem emi = new ExtendedMonitoredItem(references[selectedNodeIndex].getDisplayName().getText(), req.getItemsToCreate()[0].getRequestedParameters().getClientHandle().intValue(),
                     req, res.getResults()[0]);
 
             createdMonitoredItem = emi;
             selectedSubscription.getMonitoredItems().add(emi);
+
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
+                    Toast.makeText(getContext(), "Monitored Item created correctly.", Toast.LENGTH_LONG).show();
+                    ShowChooseCustomizedElementDialog();
+                }
+            });
+
+        } catch (final ServiceResultException ex) {
+            ex.printStackTrace();
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
+                    Toast.makeText(getContext(), "Error: " + ex.getStatusCode().getDescription() + ". Code: " + ex.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
-
 
     private void ShowChooseCustomizedElementDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -635,28 +632,66 @@ public class BrowserFragment extends Fragment {
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        final EditText elementNameText = (EditText) dialogView.findViewById(R.id.elementNameTextView);
-        final Spinner elementSpinner = (Spinner) dialogView.findViewById(R.id.elementsSpinner);
+        final EditText elementNameText = dialogView.findViewById(R.id.elementNameTextView);
+        final Spinner elementSpinner = dialogView.findViewById(R.id.elementsSpinner);
 
-        final ImageView elementImage = (ImageView) dialog.findViewById(R.id.elementImageView);
-        final TextView elementHeaderView = (TextView) dialogView.findViewById(R.id.elementHeaderTextView);
+        final ImageView elementImage = dialog.findViewById(R.id.elementImageView);
+        final TextView elementHeaderView = dialogView.findViewById(R.id.elementHeaderTextView);
 
-        final TextView minValueView = (TextView) dialogView.findViewById(R.id.elementMinValueTextView);
-        final EditText minText = (EditText) dialogView.findViewById(R.id.elementMinValueEditText);
+        final TextView minValueView = dialogView.findViewById(R.id.elementMinValueTextView);
+        final EditText minText = dialogView.findViewById(R.id.elementMinValueEditText);
 
-        final TextView maxValueView = (TextView) dialogView.findViewById(R.id.elementMaxValueTextView);
-        final EditText maxText = (EditText) dialogView.findViewById(R.id.elementMaxValueEditText);
+        final TextView maxValueView = dialogView.findViewById(R.id.elementMaxValueTextView);
+        final EditText maxText = dialogView.findViewById(R.id.elementMaxValueEditText);
 
-        String[] elements = new String[]{"Tank", "Pump", "Valve", "Sensor"};
+        final TextView nodeInfoText = dialog.findViewById((R.id.elementNodeInfoTextView));
+        nodeInfoText.setText("");
+
+        final EditText unitText = dialogView.findViewById(R.id.elementUnitEditText);
+
+        final CheckBox indicatorCheckBox = dialogView.findViewById(R.id.elementUseIndicatorCheckBox);
+        final CheckBox progressbarCheckBox = dialogView.findViewById(R.id.elementUseProgressBarCheckBox);
+
+        final LinearLayout sensorsLayout = dialogView.findViewById(R.id.sensorTypeLayout);
+        sensorsLayout.setVisibility(View.GONE);
+
+        final Spinner sensorsSpinner = dialogView.findViewById(R.id.sensorsSpinner);
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Range r = searchEuRange(references[selectedNodeIndex]);
+                if (r != null) {
+                    nodeInfoText.setText("This node has an EURange: [" + r.getLow() + ", " + r.getHigh() + "]");
+                    minText.setText(r.getLow() + "");
+                    maxText.setText(r.getHigh() + "");
+                } else {
+                    nodeInfoText.setText("No EURange found for this node.");
+                    minText.setText("");
+                    maxText.setText("");
+                }
+
+                EUInformation i = searchMisurementUnit(references[selectedNodeIndex]);
+                if (i != null) {
+                    nodeInfoText.setText("The misurement unit is " + i.getDisplayName().getText());
+                    unitText.setText(i.getDisplayName().getText());
+                } else {
+                    nodeInfoText.setText("No EngineeringUnits found for this node.");
+                    unitText.setText("");
+                }
+
+            }
+        }).start();
+
+        String[] elements = new String[]{"Tank", "Pump", "Valve", "Sensor", "Temperature Sensor", "Pressure Sensor", "Humidity Sensor"};
         ArrayAdapter<String> elementsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, elements);
         elementSpinner.setAdapter(elementsAdapter);
 
         elementSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                minText.setText("");
-                maxText.setText("");
+                sensorsLayout.setVisibility(View.GONE);
                 switch (position) {
                     case 0:
                         elementImage.setImageResource(R.drawable.ic_tank);
@@ -689,8 +724,9 @@ public class BrowserFragment extends Fragment {
                         maxText.setHint("Ex: 0 or False");
                         break;
                     case 3:
+                        sensorsLayout.setVisibility(View.VISIBLE);
                         elementImage.setImageResource(R.drawable.ic_sensor);
-                        elementHeaderView.setText("Optionally, set a range of values");
+                        elementHeaderView.setText("Set a range of values");
                         minText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
                         minValueView.setText("Min value:");
                         minText.setHint("Ex: 0");
@@ -709,11 +745,42 @@ public class BrowserFragment extends Fragment {
             }
         });
 
+        String[] sensors = new String[]{"Generic", "Temperature", "Pressure", "Humidity"};
+        ArrayAdapter<String> sensorsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, sensors);
+        sensorsSpinner.setAdapter(sensorsAdapter);
+
+        sensorsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        elementImage.setImageResource(R.drawable.ic_sensor);
+                        break;
+
+                    case 1:
+
+                    case 2:
+                    case 3:
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //DATA VALIDATION
+
                 if (elementNameText.getText().toString().isEmpty()) {
+                    Toast.makeText(getContext(), "You didn't put any name.", Toast.LENGTH_LONG).show();
+                    elementNameText.requestFocus();
+                    return;
+                }
+
+                if (unitText.getText().toString().isEmpty() && elementSpinner.getSelectedItemPosition() != 2) {
                     Toast.makeText(getContext(), "You didn't put any name.", Toast.LENGTH_LONG).show();
                     elementNameText.requestFocus();
                     return;
@@ -723,6 +790,16 @@ public class BrowserFragment extends Fragment {
 
                 String name = elementNameText.getText().toString().trim();
 
+                CustomizedElement.VisualizationType vt;
+                if (indicatorCheckBox.isChecked()) {
+                    vt = CustomizedElement.VisualizationType.INDICATOR;
+                } else {
+                    vt = CustomizedElement.VisualizationType.PROGRESS_BAR;
+                }
+                if (progressbarCheckBox.isChecked() && indicatorCheckBox.isChecked()) {
+                    vt = CustomizedElement.VisualizationType.BOTH;
+                }
+
                 try {
                     switch (elementSpinner.getSelectedItemPosition()) {
                         case 0: {
@@ -730,13 +807,17 @@ public class BrowserFragment extends Fragment {
                             Tank t = (Tank) e;
                             t.setMinValue(new Double(minText.getText().toString().trim()));
                             t.setMaxValue(new Double(maxText.getText().toString().trim()));
+                            t.setUnit(unitText.getText().toString().trim());
+                            t.setVisualization(vt);
                         }
                         break;
                         case 1: {
                             e = new Pump(createdMonitoredItem, name);
                             Pump p = (Pump) e;
-                            p.setMinRPM(new Integer(minText.getText().toString().trim()));
-                            p.setMaxRPM(new Integer(maxText.getText().toString().trim()));
+                            p.setMinValue(new Integer(minText.getText().toString().trim()));
+                            p.setMaxValue(new Integer(maxText.getText().toString().trim()));
+                            p.setUnit(unitText.getText().toString().trim());
+                            p.setVisualization(vt);
                         }
                         break;
                         case 2: {
@@ -747,15 +828,35 @@ public class BrowserFragment extends Fragment {
                             Valve va = (Valve) e;
                             va.setOpenValue(minText.getText().toString());
                             va.setClosedValue(maxText.getText().toString());
+                            va.setVisualization(vt);
+                            va.setUnit(unitText.getText().toString().trim());
                         }
                         break;
                         case 3: {
-                            e = new Sensor(createdMonitoredItem, name);
-                            Sensor s = (Sensor) e;
-                            if (!minText.getText().toString().isEmpty() && !maxText.getText().toString().isEmpty()) {
-                                s.setMinValue(new Double(minText.getText().toString().trim()));
-                                s.setMaxValue(new Double(maxText.getText().toString().trim()));
+                            Sensor.Category cat;
+                            switch (sensorsSpinner.getSelectedItemPosition()) {
+                                case 0:
+                                    cat = Sensor.Category.GENERIC;
+                                    break;
+                                case 1:
+                                    cat = Sensor.Category.TEMPERATURE;
+                                    break;
+                                case 2:
+                                    cat = Sensor.Category.PRESSURE;
+                                    break;
+                                case 3:
+                                    cat = Sensor.Category.HUMIDITY;
+                                    break;
+                                default:
+                                    cat = Sensor.Category.GENERIC;
+                                    break;
                             }
+                            e = new Sensor(createdMonitoredItem, name, cat);
+                            Sensor s = (Sensor) e;
+                            s.setMinValue(new Double(minText.getText().toString().trim()));
+                            s.setMaxValue(new Double(maxText.getText().toString().trim()));
+                            e.setVisualization(vt);
+                            e.setUnit(unitText.getText().toString().trim());
                         }
                         break;
                     }
@@ -798,25 +899,25 @@ public class BrowserFragment extends Fragment {
         View dialogView = inflater.inflate(R.layout.dialog_read, null);
 
         //Text info node
-        TextView readNameNodeView = (TextView) dialogView.findViewById(R.id.readNameNodeTextView);
-        TextView readNamespaceView = (TextView) dialogView.findViewById(R.id.readNamespaceTextView);
-        TextView readNodeIndexView = (TextView) dialogView.findViewById(R.id.readNodeIndexTextView);
+        TextView readNameNodeView = dialogView.findViewById(R.id.readNameNodeTextView);
+        TextView readNamespaceView = dialogView.findViewById(R.id.readNamespaceTextView);
+        TextView readNodeIndexView = dialogView.findViewById(R.id.readNodeIndexTextView);
 
         //Text result read
-        nodeValueView = (TextView) dialogView.findViewById(R.id.readNodeValuetextView);
-        nodeTimestampView = (TextView) dialogView.findViewById(R.id.readNodeTimestamptextView);
-        dataTypeView = (TextView) dialogView.findViewById(R.id.readDataTypeTextView);
+        nodeValueView = dialogView.findViewById(R.id.readNodeValuetextView);
+        nodeTimestampView = dialogView.findViewById(R.id.readNodeTimestamptextView);
+        dataTypeView = dialogView.findViewById(R.id.readDataTypeTextView);
 
         //Button
-        Button readButton = (Button) dialogView.findViewById(R.id.readButton);
-        Button readCloseButton = (Button) dialogView.findViewById(R.id.readCloseButton);
+        Button readButton = dialogView.findViewById(R.id.readButton);
+        Button readCloseButton = dialogView.findViewById(R.id.readCloseButton);
 
         //Parameters
-        final Spinner readTimestamp = (Spinner) dialogView.findViewById(R.id.readTimestampSpinner);
+        final Spinner readTimestamp = dialogView.findViewById(R.id.readTimestampSpinner);
         String[] items = new String[]{"Source", "Server", "Both", "Neither"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, items);
         readTimestamp.setAdapter(adapter);
-        final EditText readMaxAgeView = (EditText) dialogView.findViewById(R.id.readMaxAgeTextView);
+        final EditText readMaxAgeView = dialogView.findViewById(R.id.readMaxAgeTextView);
 
 
         ReferenceDescription r = references[selectedNodeIndex];
@@ -849,20 +950,10 @@ public class BrowserFragment extends Fragment {
                         break;
                 }
 
-                ReadRequest req = new ReadRequest();
-                req.setMaxAge(Double.parseDouble(readMaxAgeView.getText().toString().trim()));
-                req.setTimestampsToReturn(timestamps);
-                ReadValueId rv = new ReadValueId();
-                rv.setAttributeId(Attributes.Value);
-                ExpandedNodeId en = references[selectedNodeIndex].getNodeId();
-                NodeId n = NodeId.get(en.getIdType(), en.getNamespaceIndex(), en.getValue());
-                rv.setNodeId(n);
-                req.setNodesToRead(new ReadValueId[]{rv});
-
                 dialog = ProgressDialog.show(getContext(), "",
                         "Reading node value...", true);
 
-                ReadNode(req);
+                ReadNode(Double.parseDouble(readMaxAgeView.getText().toString().trim()), timestamps);
 
             }
         });
@@ -875,20 +966,22 @@ public class BrowserFragment extends Fragment {
         });
     }
 
-    private void ReadNode(final ReadRequest req) {
+    private void ReadNode(final Double maxAge, final TimestampsToReturn timestamps) {
 
         if (Looper.myLooper() == Looper.getMainLooper()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    ReadNode(req);
+                    ReadNode(maxAge, timestamps);
                 }
             }).start();
             return;
         }
 
+        final Range r = searchEuRange(references[selectedNodeIndex]);
+
         try {
-            final ReadResponse res = Core.getInstance().getSessionChannel().Read(req);
+            final DataValue v = Core.getInstance().Read(references[selectedNodeIndex], maxAge, timestamps);
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -899,32 +992,31 @@ public class BrowserFragment extends Fragment {
                     try {
                         Toast.makeText(getContext(), "Read done.", Toast.LENGTH_LONG).show();
 
-                        currentNodeDataType = res.getResults()[0].getValue().getCompositeClass().getSimpleName();
+                        currentNodeDataType = v.getValue().getCompositeClass().getSimpleName();
                         dataTypeView.setText("DataType: " + currentNodeDataType);
-                        nodeValueView.setText("Value: " + res.getResults()[0].getValue().toString());
 
-                        switch (req.getTimestampsToReturn()) {
-                            case Source: //Source
-                                nodeTimestampView.setText("Timestamp Source: " + res.getResults()[0].getSourceTimestamp().toString());
-                                break;
-                            case Server: //Server
-                                nodeTimestampView.setText("Timestamp Server: " + res.getResults()[0].getServerTimestamp().toString());
-                                break;
-                            case Both: //Both
-                                nodeTimestampView.setText("Timestamp Server: " + res.getResults()[0].getServerTimestamp().toString() + "\n" +
-                                        "Timestamp Source: " + res.getResults()[0].getSourceTimestamp().toString());
-                                break;
-                            case Neither: //Neither
-                                nodeTimestampView.setText("Timestamp Neither");
-                                break;
+                        String value = v.getValue().toString();
+                        if (r != null) {
+                            value += "\nEURange -> [" + r.getLow() + ", " + r.getHigh() + "]";
                         }
 
+                        nodeValueView.setText("Value: " + value);
+
+                        StringBuilder b = new StringBuilder();
+                        if (v.getSourceTimestamp() != null) {
+                            b.append("Timestamp Source: " + v.getSourceTimestamp().toString() + "\n");
+                        }
+
+                        if (v.getServerTimestamp() != null) {
+                            b.append("Timestamp Server: " + v.getServerTimestamp().toString() + "\n");
+                        }
+
+                        nodeTimestampView.setText(b.toString().trim());
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         Toast.makeText(getContext(), "Data read but it can't be printed.", Toast.LENGTH_LONG).show();
                     }
-
                 }
             });
         } catch (final ServiceResultException e) {
@@ -936,8 +1028,6 @@ public class BrowserFragment extends Fragment {
                     Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
                 }
             });
-
-            return;
         }
 
     }
@@ -945,11 +1035,6 @@ public class BrowserFragment extends Fragment {
 
 
     //Write ========================================================================================
-    /*
-     * TextView readNodeValueView;
-     * TextView readNodeTimestampView;
-     * Spinner readTimestamp;
-     */
 
     private void ShowWriteDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -957,25 +1042,25 @@ public class BrowserFragment extends Fragment {
         View dialogView = inflater.inflate(R.layout.dialog_write, null);
 
         //Text info node
-        TextView writeNameNodeView = (TextView) dialogView.findViewById(R.id.writeNameNodeTextView);
-        TextView writeNamespaceView = (TextView) dialogView.findViewById(R.id.writeNamespaceTextView);
-        TextView writeNodeIndexView = (TextView) dialogView.findViewById(R.id.writeNodeIndexTextView);
+        TextView writeNameNodeView = dialogView.findViewById(R.id.writeNameNodeTextView);
+        TextView writeNamespaceView = dialogView.findViewById(R.id.writeNamespaceTextView);
+        TextView writeNodeIndexView = dialogView.findViewById(R.id.writeNodeIndexTextView);
 
         //Text result
-        nodeValueView = (TextView) dialogView.findViewById(R.id.writeResultNodeValuetextView);
-        writeNodeStausView = (TextView) dialogView.findViewById(R.id.writeResultNodeStatustextView);
-        nodeTimestampView = (TextView) dialogView.findViewById(R.id.writeResultNodeTimestamptextView);
-        dataTypeView = (TextView) dialogView.findViewById(R.id.writeDataTypeTextView);
+        nodeValueView = dialogView.findViewById(R.id.writeResultNodeValuetextView);
+        writeNodeStausView = dialogView.findViewById(R.id.writeResultNodeStatustextView);
+        nodeTimestampView = dialogView.findViewById(R.id.writeResultNodeTimestamptextView);
+        dataTypeView = dialogView.findViewById(R.id.writeDataTypeTextView);
 
 
         //Button
-        Button writeButton = (Button) dialogView.findViewById(R.id.writeButton);
-        Button writeCloseButton = (Button) dialogView.findViewById(R.id.writeCloseButton);
+        Button writeButton = dialogView.findViewById(R.id.writeButton);
+        Button writeCloseButton = dialogView.findViewById(R.id.writeCloseButton);
 
         //Parameters
 
         //Value che viene inserito dall'utente
-        final EditText writeValueView = (EditText) dialogView.findViewById(R.id.writeValueTextView);
+        final EditText writeValueView = dialogView.findViewById(R.id.writeValueTextView);
 
         ReferenceDescription r = references[selectedNodeIndex];
         writeNameNodeView.setText(r.getDisplayName().getText());
@@ -1034,7 +1119,7 @@ public class BrowserFragment extends Fragment {
                             break;
                     }
                 } catch (Exception e) {
-                    Toast.makeText(getContext(), "Error on the new value: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -1055,7 +1140,6 @@ public class BrowserFragment extends Fragment {
 
                 reqwrite.setNodesToWrite(new WriteValue[]{wv});
 
-
                 dialog = ProgressDialog.show(getContext(), "",
                         "Writing node value...", true);
 
@@ -1071,20 +1155,9 @@ public class BrowserFragment extends Fragment {
             }
         });
 
-        ReadRequest reqread = new ReadRequest();
-        reqread.setMaxAge(new Double("0"));
-        reqread.setTimestampsToReturn(TimestampsToReturn.Both);
-
-        ReadValueId rv = new ReadValueId();
-        rv.setAttributeId(Attributes.Value);
-        ExpandedNodeId enr = references[selectedNodeIndex].getNodeId();
-        NodeId nr = NodeId.get(enr.getIdType(), enr.getNamespaceIndex(), enr.getValue());
-        rv.setNodeId(nr);
-        reqread.setNodesToRead(new ReadValueId[]{rv});
-
         dialog = ProgressDialog.show(getContext(), "",
                 "Loading node...", true);
-        ReadNode(reqread);
+        ReadNode(new Double(0), TimestampsToReturn.Both);
     }
 
     private void WriteNode(final WriteRequest req) {
@@ -1108,20 +1181,9 @@ public class BrowserFragment extends Fragment {
 
                     writeNodeStausView.setText("Status: " + res.getResults()[0].getName());
 
-                    ReadRequest reqread = new ReadRequest();
-                    reqread.setMaxAge(new Double("0"));
-                    reqread.setTimestampsToReturn(TimestampsToReturn.Both);
-
-                    ReadValueId rv = new ReadValueId();
-                    rv.setAttributeId(Attributes.Value);
-                    ExpandedNodeId enr = references[selectedNodeIndex].getNodeId();
-                    NodeId nr = NodeId.get(enr.getIdType(), enr.getNamespaceIndex(), enr.getValue());
-                    rv.setNodeId(nr);
-                    reqread.setNodesToRead(new ReadValueId[]{rv});
-
                     dialog = ProgressDialog.show(getContext(), "",
                             "Reloading node...", true);
-                    ReadNode(reqread);
+                    ReadNode(new Double(0), TimestampsToReturn.Both);
 
                 }
             });
