@@ -49,7 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="ElementTtype:"
+                    android:text="Element Type:"
                     android:textSize="18sp" />
 
                 <Spinner
@@ -176,10 +176,9 @@
                             android:id="@+id/elementIndicatorView"
                             android:layout_width="100dp"
                             android:layout_height="100dp"
-                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="50dp"
                             app:sv_indicator="NormalIndicator"
                             app:sv_indicatorWidth="5dp"
-                            app:sv_maxSpeed="250"
                             app:sv_speedTextColor="#FFFFFF"
                             app:sv_speedTextPadding="0dp"
                             app:sv_speedTextPosition="BOTTOM_CENTER"
@@ -187,7 +186,6 @@
                             app:sv_speedometerMode="NORMAL"
                             app:sv_speedometerWidth="8dp"
                             app:sv_textColor="#FFFFFF"
-                            app:sv_textSize="0sp"
                             app:sv_tickTextFormat="INTEGER"
                             app:sv_unitTextColor="#FFFFFF"
                             app:sv_unitTextSize="0sp"
@@ -195,14 +193,21 @@
                             app:sv_withIndicatorLight="false"
                             app:sv_withTremble="false" />
 
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="vertical">
+                            android:orientation="horizontal">
 
                             <CheckBox
                                 android:id="@+id/elementUseProgressBarCheckBox"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:checked="true"
                                 android:text="Use progress bar" />
@@ -211,30 +216,32 @@
                                 android:id="@+id/elementUseIndicatorCheckBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
                                 android:text="Use indicator" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:layout_marginRight="5dp"
-                                    android:gravity="center"
-                                    android:text="Misurement Unit:" />
-
-                                <EditText
-                                    android:id="@+id/elementUnitEditText"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:ems="10"
-                                    android:inputType="textPersonName"
-                                    android:text="Name" />
-                            </LinearLayout>
-
                         </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_marginRight="5dp"
+                                android:gravity="center"
+                                android:text="Measurement Unit:" />
+
+                            <EditText
+                                android:id="@+id/elementUnitEditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:inputType="textPersonName"
+                                android:text="Name"
+                                android:textAlignment="center" />
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </LinearLayout>

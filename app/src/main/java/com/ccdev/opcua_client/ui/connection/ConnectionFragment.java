@@ -121,8 +121,7 @@ public class ConnectionFragment extends Fragment {
 
     public void StartDiscovery() {
 
-        url = this.serverAddress.getText().toString().toLowerCase();
-        url = url.toLowerCase().trim();
+        url = this.serverAddress.getText().toString().trim();
 
         if (!url.toLowerCase().startsWith("opc.tcp://")) {
             url = "opc.tcp://" + url;
@@ -186,10 +185,14 @@ public class ConnectionFragment extends Fragment {
             endpointDescriptions = selectByProtocol((endpointDescriptions), "opc.tcp");
             endpoints.addAll(Arrays.asList(endpointDescriptions));
 
-        } catch (ServiceResultException e) {
+        } catch (final ServiceResultException e) {
             e.printStackTrace();
-
-
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext(), "Error: " + e.getStatusCode().getDescription() + ". Code: " + e.getStatusCode().getValue().toString(), Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 

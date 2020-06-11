@@ -662,29 +662,33 @@ public class BrowserFragment extends Fragment {
             @Override
             public void run() {
                 Range r = searchEuRange(references[selectedNodeIndex]);
+                StringBuilder s = new StringBuilder();
+
                 if (r != null) {
-                    nodeInfoText.setText("This node has an EURange: [" + r.getLow() + ", " + r.getHigh() + "]");
+                    s.append("This node has an EURange: [" + r.getLow() + ", " + r.getHigh() + "]");
                     minText.setText(r.getLow() + "");
                     maxText.setText(r.getHigh() + "");
                 } else {
-                    nodeInfoText.setText("No EURange found for this node.");
+                    s.append("No EURange found for this node.");
                     minText.setText("");
                     maxText.setText("");
                 }
 
                 EUInformation i = searchMisurementUnit(references[selectedNodeIndex]);
                 if (i != null) {
-                    nodeInfoText.setText("The misurement unit is " + i.getDisplayName().getText());
+                    s.append("\nThe measurement unit is " + i.getDisplayName().getText());
                     unitText.setText(i.getDisplayName().getText());
                 } else {
-                    nodeInfoText.setText("No EngineeringUnits found for this node.");
+                    s.append("\nNo EngineeringUnits found for this node.");
                     unitText.setText("");
                 }
+
+                nodeInfoText.setText(s.toString());
 
             }
         }).start();
 
-        String[] elements = new String[]{"Tank", "Pump", "Valve", "Sensor", "Temperature Sensor", "Pressure Sensor", "Humidity Sensor"};
+        String[] elements = new String[]{"Tank", "Pump", "Valve", "Sensor"};
         ArrayAdapter<String> elementsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, elements);
         elementSpinner.setAdapter(elementsAdapter);
 
@@ -756,11 +760,15 @@ public class BrowserFragment extends Fragment {
                     case 0:
                         elementImage.setImageResource(R.drawable.ic_sensor);
                         break;
-
                     case 1:
-
+                        elementImage.setImageResource(R.drawable.ic_cold);
+                        break;
                     case 2:
+                        elementImage.setImageResource(R.drawable.ic_pressure);
+                        break;
                     case 3:
+                        elementImage.setImageResource(R.drawable.ic_humidity_sensor);
+                        break;
                 }
             }
 
@@ -769,6 +777,7 @@ public class BrowserFragment extends Fragment {
 
             }
         });
+        sensorsSpinner.setSelection(0);
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -781,8 +790,8 @@ public class BrowserFragment extends Fragment {
                 }
 
                 if (unitText.getText().toString().isEmpty() && elementSpinner.getSelectedItemPosition() != 2) {
-                    Toast.makeText(getContext(), "You didn't put any name.", Toast.LENGTH_LONG).show();
-                    elementNameText.requestFocus();
+                    Toast.makeText(getContext(), "You didn't put any measurement unit", Toast.LENGTH_LONG).show();
+                    unitText.requestFocus();
                     return;
                 }
 
