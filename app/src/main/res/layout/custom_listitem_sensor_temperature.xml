@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20px"
+        android:layout_marginTop="20px"
+        android:layout_marginRight="20px"
+        app:cardBackgroundColor="@color/backgroundColor"
+        app:cardCornerRadius="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/temperatureNameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:singleLine="true"
+                android:text="Temperature"
+                android:textColor="#FFB74D"
+                android:textSize="24sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="4dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="7dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="10dp"
+                                android:text="Monitored Item: "
+                                android:textColor="#FFFFFF"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/temperatureMonitoredItemTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:singleLine="true"
+                                android:text="Int32Vaule" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="10dp"
+                                android:text="Namespace: "
+                                android:textColor="#FFFFFF" />
+
+                            <TextView
+                                android:id="@+id/temperatureNamespaceTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:singleLine="true"
+                                android:text="100" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="10dp"
+                                android:text="NodeIndex: "
+                                android:textColor="#FFFFFF" />
+
+                            <TextView
+                                android:id="@+id/temperatureNodeIndexTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:singleLine="true"
+                                android:text="1000" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Level: "
+                                android:textColor="#FFFFFF" />
+
+                            <TextView
+                                android:id="@+id/temperatureLevelTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:singleLine="true"
+                                android:text="100" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <com.lukelorusso.verticalseekbar.VerticalSeekBar
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_marginRight="10dp"
+                                android:layout_marginBottom="5dp"
+                                app:vsb_bar_background="#00FFFFFF"
+                                app:vsb_bar_corner_radius="100dp"
+                                app:vsb_bar_progress_gradient_end="#C10000"
+                                app:vsb_bar_progress_gradient_start="#C10000"
+                                app:vsb_max_value="100"
+                                app:vsb_progress="30"
+                                app:vsb_show_thumb="false" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <com.lukelorusso.verticalseekbar.VerticalSeekBar
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:layout_marginRight="10dp"
+                                android:layout_marginBottom="30dp"
+                                app:vsb_bar_background="#00FFFFFF"
+                                app:vsb_bar_progress_gradient_end="#C10000"
+                                app:vsb_bar_progress_gradient_start="#C10000"
+                                app:vsb_max_value="100"
+                                app:vsb_progress="30"
+                                app:vsb_show_thumb="false" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <com.lukelorusso.verticalseekbar.VerticalSeekBar
+                                android:id="@+id/temperatureLevelBar"
+                                android:layout_width="10dp"
+                                android:layout_height="61dp"
+                                android:layout_marginLeft="20dp"
+                                android:layout_marginRight="30dp"
+                                android:layout_marginBottom="30dp"
+                                app:vsb_bar_background="#00FFFFFF"
+                                app:vsb_bar_corner_radius="15dp"
+                                app:vsb_bar_progress_gradient_end="#C10000"
+                                app:vsb_bar_progress_gradient_start="#EF8535"
+                                app:vsb_max_value="100"
+                                app:vsb_progress="30"
+                                app:vsb_show_thumb="false" />
+                        </LinearLayout>
+
+
+                        <ImageView
+                            android:id="@+id/imageView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="30dp"
+                            app:srcCompat="@drawable/ic_cold" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="?android:attr/listDivider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:paddingBottom="5dp">
+
+                <ImageView
+                    android:id="@+id/temperatureMonitorImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ic_desktop_windows_white_24dp" />
+
+                <ImageView
+                    android:id="@+id/temperatureStatusImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/pause_24dp" />
+
+                <ImageView
+                    android:id="@+id/temperatureRemoveImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/delete_24dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
