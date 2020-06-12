@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +40,8 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
     public static final int SensorView = 2;
     public static final int ValveView = 3;
 
+    public static final int TemperatureSensorView = 4;
+
     List<CustomizedElement> elements;
 
     Context context;
@@ -64,6 +65,10 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         }
 
         if (elements.get(position) instanceof Sensor) {
+            Sensor s = (Sensor) elements.get(position);
+            if (s.getCategory() == Sensor.Category.TEMPERATURE) {
+                return TemperatureSensorView;
+            }
             return SensorView;
         }
 
@@ -93,6 +98,11 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
             case SensorView:
                 contactView = inflater.inflate(R.layout.custom_listitem_generic, parent, false);
                 return new GenericViewHolder(contactView);
+
+            case TemperatureSensorView:
+                contactView = inflater.inflate(R.layout.custom_listitem_sensor_temperature, parent, false);
+                return new TemperatureViewHolder(contactView);
+
             default:
 
                 break;
@@ -236,7 +246,6 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                     percentage = Math.round(percentage * 100.0) / 100.0;
                     h.levelBar.setProgress((int) percentage);
 
-
                 } catch (Exception e) {
                      h.valueText.setText("Wrong data type...");
                 }
@@ -306,40 +315,60 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                     case PRESSURE:
                         h.imageView.setImageResource(R.drawable.ic_pressure);
                         break;
-                    case TEMPERATURE:
-                        Sensor t = (Sensor) element;
-                        TemperatureViewHolder th = (TemperatureViewHolder) holder;
+                }
 
-                        monitorButton = th.monitorView;
-                        statusButton = th.statusView;
-                        removeButton = th.removeView;
+            }
+            break;
 
-                        th.nameText.setText(element.getName());
+            case TemperatureSensorView: {
+                Sensor s = (Sensor) element;
+                TemperatureViewHolder h = (TemperatureViewHolder) holder;
+                monitorButton = h.monitorView;
+                statusButton = h.statusView;
+                removeButton = h.removeView;
 
-                        th.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
-                        th.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
-                        th.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
+                h.nameText.setText(element.getName());
 
-                        th.rangeView.setText("[" + s.getMinValue() + ", " + s.getMaxValue() + "]");
+                h.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
+                h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
+                h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
 
-                        th.imageView.setImageResource(R.drawable.ic_cold);
+                h.rangeText.setText("[" + s.getMinValue() + ", " + s.getMaxValue() + "]");
 
-                        try {
+                h.speedometer.setMinSpeed(new Float(s.getMinValue()));
+                h.speedometer.setMaxSpeed(new Float(s.getMaxValue()));
 
-                            String str = s.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
-                            double value = new Double(str);
-                            value = Math.round(value * 100) / 100;
-                            h.valueText.setText(value + " " + s.getUnit());
-                            double percentage = ((value - s.getMinValue()) * 100) / (s.getMaxValue() - s.getMinValue());
-                            percentage = Math.round(percentage * 100.0) / 100.0;
-                            h.levelBar.setProgress((int) percentage);
+                h.speedometer.setUnit(s.getUnit());
 
-
-                        } catch (Exception e) {
-                            h.valueText.setText("Wrong data type...");
-                        }
-
+                switch (s.getVisualization()) {
+                    case PROGRESS_BAR:
+                        h.progressBarLayout.setVisibility(View.VISIBLE);
+                        h.speedometer.setVisibility(View.GONE);
                         break;
+                    case INDICATOR:
+                        h.progressBarLayout.setVisibility(View.GONE);
+                        h.speedometer.setVisibility(View.VISIBLE);
+                        break;
+                    case BOTH:
+                        h.progressBarLayout.setVisibility(View.VISIBLE);
+                        h.speedometer.setVisibility(View.VISIBLE);
+                        break;
+                }
+
+                try {
+
+                    String str = s.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                    double value = new Double(str);
+                    value = Math.round(value * 100) / 100;
+                    h.valueText.setText(value + " " + s.getUnit());
+                    h.speedometer.speedTo(new Float(value));
+                    double percentage = ((value - s.getMinValue()) * 100) / (s.getMaxValue() - s.getMinValue());
+                    percentage = Math.round(percentage * 100.0) / 100.0;
+                    h.LevelBar.setProgress((int) percentage);
+
+
+                } catch (Exception e) {
+                    h.valueText.setText("Wrong data type...");
                 }
 
             }
@@ -618,28 +647,32 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         TextView NodeIndexView;
         TextView NamespaceView;
 
-        TextView ValueView;
-        TextView rangeView;
+        TextView valueText;
+        TextView rangeText;
 
         //TemperatureLevelBar:
         VerticalSeekBar LevelBar;
+        SpeedView speedometer;
+        FrameLayout progressBarLayout;
 
         public TemperatureViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            monitorView = itemView.findViewById(R.id.genericMonitorImageView);
-            statusView = itemView.findViewById(R.id.genericStatusImageView);
-            removeView = itemView.findViewById(R.id.genericRemoveImageView);
+            monitorView = itemView.findViewById(R.id.temperatureMonitorImageView);
+            statusView = itemView.findViewById(R.id.temperatureStatusImageView);
+            removeView = itemView.findViewById(R.id.temperatureRemoveImageView);
 
-            nameText = itemView.findViewById(R.id.genericNameTextView);
-            MonitoredItemView = itemView.findViewById(R.id.genericMonitoredItemTextView);
-            NodeIndexView = itemView.findViewById(R.id.genericNodeIndexTextView);
-            NamespaceView = itemView.findViewById(R.id.genericNamespaceTextView);
-            ValueView = itemView.findViewById(R.id.temperatureValueTextView);
-            rangeView = itemView.findViewById(R.id.temperatureRangeTextView);
+            nameText = itemView.findViewById(R.id.temperatureNameTextView);
+            MonitoredItemView = itemView.findViewById(R.id.temperatureMonitoredItemTextView);
+            NodeIndexView = itemView.findViewById(R.id.temperatureNodeIndexTextView);
+            NamespaceView = itemView.findViewById(R.id.temperatureNamespaceTextView);
+            valueText = itemView.findViewById(R.id.temperatureValueTextView);
+            rangeText = itemView.findViewById(R.id.temperatureRangeTextView);
             imageView = itemView.findViewById(R.id.temperatureimageView);
             LevelBar = itemView.findViewById(R.id.temperatureLevelBar);
 
+            speedometer = itemView.findViewById(R.id.temperatureSpeedView);
+            progressBarLayout = itemView.findViewById(R.id.temperatureProgressBarLayout);
         }
     }
 
