@@ -216,6 +216,7 @@ public class Core {
 
     ArrayList<CoreInterface> listeners = new ArrayList();
 
+    //Everything updates once this is called. This also prevent concurrent operations on the list
     public void notifyUpdate() {
         if (listeners.size() > 0) {
             for (CoreInterface next : listeners) {
