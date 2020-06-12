@@ -696,6 +696,9 @@ public class BrowserFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sensorsLayout.setVisibility(View.GONE);
+                indicatorCheckBox.setEnabled(true);
+                progressbarCheckBox.setEnabled(true);
+
                 switch (position) {
                     case 0:
                         elementImage.setImageResource(R.drawable.ic_tank);
@@ -726,6 +729,10 @@ public class BrowserFragment extends Fragment {
                         maxText.setInputType(InputType.TYPE_CLASS_TEXT);
                         maxValueView.setText("Closed value:");
                         maxText.setHint("Ex: 0 or False");
+                        indicatorCheckBox.setEnabled(false);
+                        indicatorCheckBox.setChecked(false);
+                        progressbarCheckBox.setEnabled(false);
+                        progressbarCheckBox.setChecked(false);
                         break;
                     case 3:
                         sensorsLayout.setVisibility(View.VISIBLE);

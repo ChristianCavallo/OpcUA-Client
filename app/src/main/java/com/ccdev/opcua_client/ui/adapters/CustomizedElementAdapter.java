@@ -196,6 +196,8 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                     h.StateView.setText("Closed");
                 }
 
+                h.valueText.setText(value);
+
             }
             break;
             case PumpView: {
@@ -614,6 +616,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
         TextView NodeIndexView;
         TextView NamespaceView;
         TextView StateView;
+        TextView valueText;
 
         ImageView StateImageView;
 
@@ -631,6 +634,8 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
             StateView = itemView.findViewById(R.id.valveStateTextView);
 
             StateImageView = itemView.findViewById(R.id.valveStateImageView);
+
+            valueText = itemView.findViewById(R.id.valveValueTextView);
         }
     }
 
