@@ -40,6 +40,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
     public static final int PumpView = 1;
     public static final int SensorView = 2;
     public static final int ValveView = 3;
+    public static final int TemperatureSensorView = 4;
 
     List<CustomizedElement> elements;
 
@@ -92,6 +93,9 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 return new GenericViewHolder(contactView);
             case SensorView:
                 contactView = inflater.inflate(R.layout.custom_listitem_generic, parent, false);
+                return new GenericViewHolder(contactView);
+            case TemperatureSensorView:
+                contactView = inflater.inflate(R.layout.custom_listitem_sensor_temperature, parent, false);
                 return new GenericViewHolder(contactView);
             default:
 
@@ -344,7 +348,10 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
             }
             break;
+            case TemperatureSensorView:
 
+
+                break;
             default:
 
                 break;
