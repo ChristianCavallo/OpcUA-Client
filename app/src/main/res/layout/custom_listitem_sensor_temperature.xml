@@ -30,6 +30,28 @@
                 android:textSize="24sp" />
 
             <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="Monitored Item: "
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/temperatureMonitoredItemTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="Int32Vaule" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="4dp"
@@ -44,30 +66,7 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
                         android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingLeft="10dp"
-                                android:text="Monitored Item: "
-                                android:textColor="#FFFFFF"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/temperatureMonitoredItemTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:singleLine="true"
-                                android:text="Int32Vaule" />
-                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -112,28 +111,70 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingLeft="10dp">
+                            android:orientation="horizontal">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Level: "
-                                android:textColor="#FFFFFF" />
+                                android:paddingLeft="10dp"
+                                android:text="Range: "
+                                android:textColor="@color/colorAccent" />
 
                             <TextView
-                                android:id="@+id/temperatureLevelTextView"
+                                android:id="@+id/temperatureRangeTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
+                                android:text="TextView" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="10dp"
+                                android:text="Value: "
+                                android:textColor="@color/colorAccent" />
+
+                            <TextView
+                                android:id="@+id/temperatureValueTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
                                 android:singleLine="true"
-                                android:text="100" />
-
+                                android:text="10.000 RPM"
+                                android:textSize="13.5sp" />
                         </LinearLayout>
 
                     </LinearLayout>
+
+                    <com.github.anastr.speedviewlib.SpeedView
+                        android:id="@+id/genericSpeedView"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_marginLeft="50dp"
+                        android:layout_marginRight="5dp"
+                        app:sv_indicator="NormalIndicator"
+                        app:sv_indicatorWidth="5dp"
+                        app:sv_maxSpeed="250"
+                        app:sv_minSpeed="-250"
+                        app:sv_speedTextColor="#FFFFFF"
+                        app:sv_speedTextPadding="0dp"
+                        app:sv_speedTextPosition="BOTTOM_CENTER"
+                        app:sv_speedTextSize="10dp"
+                        app:sv_speedometerMode="NORMAL"
+                        app:sv_speedometerWidth="8dp"
+                        app:sv_textColor="#FFFFFF"
+                        app:sv_textSize="10sp"
+                        app:sv_tickTextFormat="INTEGER"
+                        app:sv_unit="Pascal"
+                        app:sv_unitTextColor="#FFFFFF"
+                        app:sv_unitTextSize="10sp" />
 
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -148,7 +189,7 @@
                             <com.lukelorusso.verticalseekbar.VerticalSeekBar
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
-                                android:layout_marginRight="10dp"
+                                android:layout_marginLeft="20dp"
                                 android:layout_marginBottom="5dp"
                                 app:vsb_bar_background="#00FFFFFF"
                                 app:vsb_bar_corner_radius="100dp"
@@ -168,7 +209,7 @@
                             <com.lukelorusso.verticalseekbar.VerticalSeekBar
                                 android:layout_width="10dp"
                                 android:layout_height="10dp"
-                                android:layout_marginRight="10dp"
+                                android:layout_marginLeft="20dp"
                                 android:layout_marginBottom="30dp"
                                 app:vsb_bar_background="#00FFFFFF"
                                 app:vsb_bar_progress_gradient_end="#C10000"
@@ -188,7 +229,7 @@
                                 android:id="@+id/temperatureLevelBar"
                                 android:layout_width="10dp"
                                 android:layout_height="61dp"
-                                android:layout_marginLeft="20dp"
+                                android:layout_marginLeft="50dp"
                                 android:layout_marginRight="30dp"
                                 android:layout_marginBottom="30dp"
                                 app:vsb_bar_background="#00FFFFFF"
@@ -202,10 +243,10 @@
 
 
                         <ImageView
-                            android:id="@+id/imageView"
-                            android:layout_width="match_parent"
+                            android:id="@+id/temperatureimageView"
+                            android:layout_width="100dp"
                             android:layout_height="match_parent"
-                            android:layout_marginRight="30dp"
+
                             app:srcCompat="@drawable/ic_cold" />
 
                     </FrameLayout>
