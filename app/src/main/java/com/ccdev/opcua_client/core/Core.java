@@ -281,7 +281,7 @@ public class Core {
         startPublisher();
     }
 
-    public ArrayList<ExtendedSubscription> getSubscriptions() {
+    public synchronized ArrayList<ExtendedSubscription> getSubscriptions() {
         return subscriptions;
     }
 
