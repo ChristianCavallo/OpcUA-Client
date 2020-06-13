@@ -276,12 +276,15 @@ public class Core {
     public void createSubscription(ExtendedSubscription ex) throws ServiceResultException {
         CreateSubscriptionResponse res = sessionChannel.CreateSubscription(ex.getRequest());
         ex.setResponse(res);
-        subscriptions.add(ex);
+        
+        synchronized (subscriptions) {
+            subscriptions.add(ex);
+        }
 
         startPublisher();
     }
 
-    public synchronized ArrayList<ExtendedSubscription> getSubscriptions() {
+    public ArrayList<ExtendedSubscription> getSubscriptions() {
         return subscriptions;
     }
 
