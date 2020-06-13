@@ -60,6 +60,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -154,7 +155,6 @@
                     android:id="@+id/genericSpeedView"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:layout_marginLeft="35dp"
                     android:layout_marginRight="5dp"
                     app:sv_indicator="NormalIndicator"
                     app:sv_indicatorWidth="5dp"
@@ -177,7 +177,7 @@
                     android:id="@+id/genericProgressBarLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_marginRight="10dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -198,11 +198,9 @@
                             android:layout_width="7dp"
                             android:layout_height="100dp"
                             android:layout_marginLeft="3dp"
-                            android:layout_marginRight="20dp"
                             android:paddingTop="3dp"
                             app:vsb_bar_background="#00FFFFFF"
-                            app:vsb_bar_corner_radius="100dp"
-                            app:vsb_bar_progress_gradient_end="#FFDD03"
+                            app:vsb_bar_progress_gradient_end="#64FF03"
                             app:vsb_bar_progress_gradient_start="#C10000"
                             app:vsb_max_value="100"
                             app:vsb_progress="30"

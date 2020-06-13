@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -193,12 +194,13 @@
                                 android:layout_marginLeft="20dp"
                                 android:layout_marginBottom="5dp"
                                 app:vsb_bar_background="#00FFFFFF"
-                                app:vsb_bar_corner_radius="100dp"
+                                app:vsb_bar_corner_radius="10dp"
                                 app:vsb_bar_progress_gradient_end="#C10000"
                                 app:vsb_bar_progress_gradient_start="#C10000"
                                 app:vsb_max_value="100"
-                                app:vsb_progress="30"
-                                app:vsb_show_thumb="false" />
+                                app:vsb_progress="100"
+                                app:vsb_show_thumb="false"
+                                tools:visibility="visible" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -216,8 +218,9 @@
                                 app:vsb_bar_progress_gradient_end="#C10000"
                                 app:vsb_bar_progress_gradient_start="#C10000"
                                 app:vsb_max_value="100"
-                                app:vsb_progress="30"
-                                app:vsb_show_thumb="false" />
+                                app:vsb_progress="100"
+                                app:vsb_show_thumb="false"
+                                tools:visibility="visible" />
                         </LinearLayout>
 
                         <LinearLayout

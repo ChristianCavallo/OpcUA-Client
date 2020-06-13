@@ -830,8 +830,8 @@ public class BrowserFragment extends Fragment {
                         case 1: {
                             e = new Pump(createdMonitoredItem, name);
                             Pump p = (Pump) e;
-                            p.setMinValue(new Integer(minText.getText().toString().trim()));
-                            p.setMaxValue(new Integer(maxText.getText().toString().trim()));
+                            p.setMinValue(new Double(minText.getText().toString().trim()));
+                            p.setMaxValue(new Double(maxText.getText().toString().trim()));
                             p.setUnit(unitText.getText().toString().trim());
                             p.setVisualization(vt);
                         }
