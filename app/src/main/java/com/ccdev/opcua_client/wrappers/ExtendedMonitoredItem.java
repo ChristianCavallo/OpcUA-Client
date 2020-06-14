@@ -36,7 +36,7 @@ public class ExtendedMonitoredItem {
         return notifies;
     }
 
-    public void addRead(MonitoredItemNotification n) {
+    public synchronized void addRead(MonitoredItemNotification n) {
         if (notifies.size() == notifiesListSize) {
             notifies.remove(notifies.size() - 1);
         }
