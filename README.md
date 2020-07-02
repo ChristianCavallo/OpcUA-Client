@@ -1,7 +1,10 @@
 # OPC UA - Android Client
 This project has been developed inside the course of Industrial Informatics at University of Catania (DIEEI) teached by Prof. Salvatore Cavalieri.
 It is a simple client with a SCADA-style user interface.
-This was accomplished by mapping a MonitoredItem with a Scada component including: valves, sensors, pumps and tanks.
+This was accomplished by mapping a MonitoredItem with a Scada component including: valves, sensors, pumps and tanks.<br />
+
+
+ More detailed pdf (Italian): <a href="https://github.com/ChristianCavallo/OpcUA-Client/blob/master/DescrizioneApp.pdf">DescrizioneApp.pdf</a><br />
 
 <p>
   <img src="https://github.com/ChristianCavallo/OpcUA-Client/blob/master/screenshots/Endpoints.png" width="350">
