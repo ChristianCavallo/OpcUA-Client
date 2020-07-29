@@ -130,7 +130,6 @@ public class Core {
             }
         }
 
-
         opcApplication = new org.opcfoundation.ua.application.Application();
         opcApplication.addApplicationInstanceCertificate(keys);
         opcApplication.getOpctcpSettings().setCertificateValidator(CertificateValidator.ALLOW_ALL);
@@ -276,7 +275,7 @@ public class Core {
     public void createSubscription(ExtendedSubscription ex) throws ServiceResultException {
         CreateSubscriptionResponse res = sessionChannel.CreateSubscription(ex.getRequest());
         ex.setResponse(res);
-        
+
         synchronized (subscriptions) {
             subscriptions.add(ex);
         }
@@ -310,10 +309,14 @@ public class Core {
         DeleteSubscriptionsResponse res = sessionChannel.DeleteSubscriptions(req);
         if (res.getResults()[0].isGood()) {
             removeCustomizedElementsBySubscription(ex);
-            subscriptions.remove(ex);
-            if (subscriptions.isEmpty()) {
-                stopPublisher();
+
+            synchronized (subscriptions) {
+                subscriptions.remove(ex);
+                if (subscriptions.isEmpty()) {
+                    stopPublisher();
+                }
             }
+
             return true;
         }
         return false;
@@ -359,7 +362,7 @@ public class Core {
         return false;
     }
 
-    public boolean removeMonitoredItem(ExtendedMonitoredItem ex) throws ServiceResultException {
+    public synchronized boolean removeMonitoredItem(ExtendedMonitoredItem ex) throws ServiceResultException {
         DeleteMonitoredItemsRequest req = new DeleteMonitoredItemsRequest();
         ExtendedSubscription subscription = null;
         for (int i = 0; i < subscriptions.size(); i++) {

@@ -270,7 +270,7 @@ public class BrowserFragment extends Fragment {
         return null;
     }
 
-    private EUInformation searchMisurementUnit(ReferenceDescription r) {
+    private EUInformation searchMeasurementUnit(ReferenceDescription r) {
         try {
             ReferenceDescription[] browseResult = Core.getInstance().Browse(r);
 
@@ -674,7 +674,7 @@ public class BrowserFragment extends Fragment {
                     maxText.setText("");
                 }
 
-                EUInformation i = searchMisurementUnit(references[selectedNodeIndex]);
+                EUInformation i = searchMeasurementUnit(references[selectedNodeIndex]);
                 if (i != null) {
                     s.append("\nThe measurement unit is " + i.getDisplayName().getText());
                     unitText.setText(i.getDisplayName().getText());
@@ -1216,5 +1216,7 @@ public class BrowserFragment extends Fragment {
 
         }
     }
+
+    // =============================================================================================
 
 }

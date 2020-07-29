@@ -156,7 +156,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
 
                 try {
-                    String s = t.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                    String s = t.getMonitoredItem().getNotifications().get(0).getValue().getValue().toString();
                     double value = new Double(s);
                     value = Math.round(value * 100) / 100;
                     h.valueText.setText(value + " " + t.getUnit());
@@ -185,7 +185,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
                 h.MonitoredItemView.setText(element.getMonitoredItem().getNodeName());
                 h.NamespaceView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getNamespaceIndex() + "");
                 h.NodeIndexView.setText(element.getMonitoredItem().getRequest().getItemsToCreate()[0].getItemToMonitor().getNodeId().getValue().toString());
-                String value = v.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                String value = v.getMonitoredItem().getNotifications().get(0).getValue().getValue().toString();
 
                 if (v.getOpenValue().toLowerCase().equals(value.toLowerCase())) {
                     h.StateImageView.setImageResource(R.drawable.ic_valve_open);
@@ -239,7 +239,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 try {
 
-                    String s = p.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                    String s = p.getMonitoredItem().getNotifications().get(0).getValue().getValue().toString();
                     double value = new Double(s);
                     value = Math.round(value * 100) / 100;
                     h.valueText.setText(value + " " + p.getUnit());
@@ -293,7 +293,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 try {
 
-                    String str = s.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                    String str = s.getMonitoredItem().getNotifications().get(0).getValue().getValue().toString();
                     double value = new Double(str);
                     value = Math.round(value * 100) / 100;
                     h.valueText.setText(value + " " + s.getUnit());
@@ -359,7 +359,7 @@ public class CustomizedElementAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 try {
 
-                    String str = s.getMonitoredItem().getNotifies().get(0).getValue().getValue().toString();
+                    String str = s.getMonitoredItem().getNotifications().get(0).getValue().getValue().toString();
                     double value = new Double(str);
                     value = Math.round(value * 100) / 100;
                     h.valueText.setText(value + " " + s.getUnit());

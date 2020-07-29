@@ -63,10 +63,10 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
         holder.itemSampling.setText(m.getMonitoredItem().getRevisedSamplingInterval().intValue() + "");
         holder.itemQueueSize.setText(m.getMonitoredItem().getRevisedQueueSize().intValue() + "");
 
-        if (m.getNotifies().isEmpty()) {
+        if (m.getNotifications().isEmpty()) {
             holder.itemValue.setText("...");
         } else {
-            holder.itemValue.setText(m.getNotifies().get(0).getValue().getValue().toString());
+            holder.itemValue.setText(m.getNotifications().get(0).getValue().getValue().toString());
         }
 
         holder.itemRemoveButton.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +119,7 @@ public class MonitoredItemAdapter extends RecyclerView.Adapter<MonitoredItemAdap
                 builder.setView(dialogView);
 
                 nameText.setText(m.getNodeName());
-                dialogAdapter = new DialogMonitorItemAdapter(m.getNotifies());
+                dialogAdapter = new DialogMonitorItemAdapter(m.getNotifications());
                 monitorList.setLayoutManager(new LinearLayoutManager(context));
                 monitorList.setAdapter(dialogAdapter);
 

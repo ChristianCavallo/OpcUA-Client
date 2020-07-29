@@ -112,9 +112,9 @@ public class HomeFragment extends Fragment implements CoreInterface {
         chartIndex = 0;
         List<Entry> entries = new ArrayList<>();
 
-        for (int i = 0; i < element.getMonitoredItem().getNotifies().size(); i++) {
+        for (int i = 0; i < element.getMonitoredItem().getNotifications().size(); i++) {
 
-            String val = element.getMonitoredItem().getNotifies().get(i).getValue().getValue().toString();
+            String val = element.getMonitoredItem().getNotifications().get(i).getValue().getValue().toString();
             Float fval = null;
 
             if (element instanceof Valve) {
@@ -173,11 +173,11 @@ public class HomeFragment extends Fragment implements CoreInterface {
                         return;
                     }
 
-                    if (customElement.getMonitoredItem().getNotifies().isEmpty()) {
+                    if (customElement.getMonitoredItem().getNotifications().isEmpty()) {
                         return;
                     }
 
-                    MonitoredItemNotification m = customElement.getMonitoredItem().getNotifies().get(0);
+                    MonitoredItemNotification m = customElement.getMonitoredItem().getNotifications().get(0);
                     String val = m.getValue().getValue().toString();
                     Float fval = null;
 

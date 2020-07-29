@@ -14,12 +14,12 @@ public class ExtendedMonitoredItem {
     MonitoredItemCreateResult monitoredItem;
     String nodeName;
     int id;
-    ArrayList<MonitoredItemNotification> notifies;
+    ArrayList<MonitoredItemNotification> notifications;
 
     public ExtendedMonitoredItem(String name, int id, CreateMonitoredItemsRequest request, MonitoredItemCreateResult monitoredItem) {
         this.request = request;
         this.monitoredItem = monitoredItem;
-        this.notifies = new ArrayList<>(notifiesListSize);
+        this.notifications = new ArrayList<>(notifiesListSize);
         this.id = id;
         this.nodeName = name;
     }
@@ -32,19 +32,19 @@ public class ExtendedMonitoredItem {
         return monitoredItem;
     }
 
-    public ArrayList<MonitoredItemNotification> getNotifies() {
-        return notifies;
+    public ArrayList<MonitoredItemNotification> getNotifications() {
+        return notifications;
     }
 
-    public void addRead(MonitoredItemNotification n) {
-        if (notifies.size() == notifiesListSize) {
-            notifies.remove(notifies.size() - 1);
+    public synchronized void addRead(MonitoredItemNotification n) {
+        if (notifications.size() == notifiesListSize) {
+            notifications.remove(notifications.size() - 1);
         }
-        notifies.add(0, n);
+        notifications.add(0, n);
     }
 
     public void reset() {
-        notifies.clear();
+        notifications.clear();
     }
 
     public int getId() {
