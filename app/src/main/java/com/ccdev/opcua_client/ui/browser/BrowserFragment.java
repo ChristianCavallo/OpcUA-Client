@@ -264,7 +264,7 @@ public class BrowserFragment extends Fragment {
                     return range;
                 }
             }
-        } catch (ServiceResultException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
